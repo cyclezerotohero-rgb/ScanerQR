@@ -44,38 +44,31 @@
             }
         }
 
-        async function startScanner() {
-            const codeReader = new ZXing.BrowserMultiFormatReader();
-            const statusElt = document.getElementById('status');
-            const videoElt = document.getElementById('video');
-
-            try {
-                statusElt.innerText = "กำลังขออนุญาตเข้าถึงกล้องหลัง...";
-                
-                // บังคับขอสิทธิ์กล้องก่อนเริ่ม
-                const stream = await navigator.mediaDevices.getUserMedia({ 
-                    video: { facingMode: "environment" } 
-                });
-                
-                videoElt.srcObject = stream;
-                await videoElt.play();
-
-                codeReader.decodeFromVideoDevice(null, 'video', (result, err) => {
-                    if (result) {
-                        statusElt.innerText = "พบรหัส: " + result.text;
-                        statusElt.style.color = "green";
-                        sendData(result.text);
-                        codeReader.reset();
-                        stream.getTracks().forEach(track => track.stop());
-                    }
-                });
-                statusElt.innerText = "กล้องพร้อมใช้งาน ส่องไปที่บาร์โค้ดได้เลย";
-            } catch (error) {
-                console.error(error);
-                statusElt.innerText = "ไม่สามารถเปิดกล้องได้: " + error.message;
-                statusElt.style.color = "red";
-            }
+       async function startScanner() {
+    const statusElt = document.getElementById('status');
+    try {
+        // เช็คว่าเบราว์เซอร์รองรับกล้องไหม
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+            throw new Error("เบราว์เซอร์นี้ไม่รองรับการเข้าถึงกล้อง");
         }
+        
+        statusElt.innerText = "กำลังขอสิทธิ์ใช้งานกล้อง...";
+        // บังคับให้เบราว์เซอร์ถาม Permission ก่อน
+        await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
+        
+        // ถ้าผ่านแล้วค่อยเริ่มสแกน
+        const codeReader = new ZXing.BrowserMultiFormatReader();
+        codeReader.decodeFromVideoDevice(null, 'video', (result, err) => {
+            if (result) {
+                // ... (โค้ดส่งข้อมูลเหมือนเดิม)
+            }
+        });
+        statusElt.innerText = "พร้อมสแกนแล้วครับ!";
+    } catch (err) {
+        statusElt.innerText = "คนใช้ต้องกดยอมรับสิทธิ์กล้องก่อนนะครับถึงจะใช้ได้";
+        console.error(err);
+    }
+}
 
         async function sendData(barcode) {
             const profile = await liff.getProfile();
