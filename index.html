@@ -7,7 +7,7 @@
     <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
     <script src="https://unpkg.com/@zxing/library@latest"></script>
     <style>
-        /* สไตล์หน้าจอแนะนำ */
+        /* หน้าจอแนะนำแบบชี้มุมขวาล่าง */
         #guide-overlay {
             display: none;
             position: fixed;
@@ -16,13 +16,23 @@
             color: white;
             z-index: 9999;
             text-align: center;
-            padding-top: 20px;
         }
-        .arrow {
+        .instruction-box {
             position: absolute;
-            top: 10px;
-            right: 20px;
-            font-size: 50px;
+            bottom: 120px; /* ขยับขึ้นมาเหนือลูกศร */
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80%;
+            background: #333;
+            padding: 20px;
+            border-radius: 15px;
+            border: 2px solid #ffcf00;
+        }
+        .arrow-down {
+            position: absolute;
+            bottom: 30px;
+            right: 40px; /* ชี้ไปมุมขวาล่าง */
+            font-size: 60px;
             color: #ffcf00;
             animation: bounce 1s infinite;
         }
@@ -35,14 +45,12 @@
 <body style="text-align: center; font-family: sans-serif; background-color: #f8f9fa; margin: 0; padding-top: 50px;">
     
     <div id="guide-overlay">
-        <div class="arrow">↗️</div>
-        <div style="margin-top: 80px; padding: 20px;">
-            <h2 style="color: #ffcf00;">เพื่อการใช้งานที่สมบูรณ์</h2>
-            <p>1. กดที่ปุ่ม <b>"จุด 3 จุด"</b> หรือ <b>"เข็มทิศ"</b> มุมขวาบน</p>
-            <p>2. เลือก <b>"เปิดในเบราว์เซอร์เริ่มต้น"</b><br>(Open in default browser)</p>
-            <hr style="border: 0.5px solid #444; margin: 20px 0;">
-            <p style="font-size: 14px; color: #aaa;">เนื่องจากกล้องในแอป LINE อาจถูกจำกัดสิทธิ์ในบางเครื่อง</p>
+        <div class="instruction-box">
+            <h2 style="color: #ffcf00; margin-top: 0;">พบปัญหาจอดำ?</h2>
+            <p>กรุณากดที่ปุ่ม <b>"แชร์"</b> หรือ <b>"เข็มทิศ"</b><br>ที่มุมขวาล่าง</p>
+            <p>แล้วเลือก <b>"เปิดในเบราว์เซอร์"</b><br>(Open in Browser)</p>
         </div>
+        <div class="arrow-down">↘️</div>
     </div>
 
     <h3>แสกนบาร์โค้ดที่ขวดน้ำ</h3>
@@ -56,14 +64,15 @@
     <button onclick="location.reload()" style="padding: 10px 20px; border-radius: 20px; border: none; background: #00b900; color: white;">รีเฟรชหน้าจอ</button>
 
     <script>
+        // ใส่ ID และ URL ของพี่เหมือนเดิมนะคั้บ
         const myLiffId = "2009856940-tyxcN1rB"; 
-        const myScriptUrl = "https://script.google.com/macros/s/AKfycbzon--LEO1cpZVyFFd7QXW4RL2ntQ4YrroequdJu-l_xakZcKs9G_175rQZBvYm-E-nHQ/exec";
+        const myScriptUrl = "https://script.google.com/macros/s/AKfycbzon--LEO1cpZVyFFd7QXW4RL2ntQ4Yrro.../exec";
 
         async function main() {
             try {
                 await liff.init({ liffId: myLiffId });
                 
-                // เช็คว่าเปิดใน LINE Browser หรือไม่
+                // ถ้าเปิดในแอป LINE ให้โชว์ตัวช่วยชี้เป้าทันที
                 if (liff.isInClient()) {
                     document.getElementById('guide-overlay').style.display = 'block';
                 }
@@ -97,7 +106,8 @@
                     }
                 });
             } catch (error) {
-                statusElt.innerText = "โปรดเปิดในเบราว์เซอร์ปกติเพื่อใช้งานกล้อง";
+                // ถ้ากล้องไม่ติด (จอดำ) ก็จะโชว์ Overlay เหมือนเดิม
+                document.getElementById('guide-overlay').style.display = 'block';
             }
         }
 
@@ -113,11 +123,7 @@
                 })
             }).then(() => {
                 alert("บันทึกข้อมูลเรียบร้อย!");
-                if (!liff.isInClient()) {
-                    window.close(); 
-                } else {
-                    liff.closeWindow();
-                }
+                liff.closeWindow();
             });
         }
         main();
