@@ -6,8 +6,45 @@
     <title>Barcode Scanner</title>
     <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
     <script src="https://unpkg.com/@zxing/library@latest"></script>
+    <style>
+        /* สไตล์หน้าจอแนะนำ */
+        #guide-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85);
+            color: white;
+            z-index: 9999;
+            text-align: center;
+            padding-top: 20px;
+        }
+        .arrow {
+            position: absolute;
+            top: 10px;
+            right: 20px;
+            font-size: 50px;
+            color: #ffcf00;
+            animation: bounce 1s infinite;
+        }
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(10px); }
+        }
+    </style>
 </head>
 <body style="text-align: center; font-family: sans-serif; background-color: #f8f9fa; margin: 0; padding-top: 50px;">
+    
+    <div id="guide-overlay">
+        <div class="arrow">↗️</div>
+        <div style="margin-top: 80px; padding: 20px;">
+            <h2 style="color: #ffcf00;">เพื่อการใช้งานที่สมบูรณ์</h2>
+            <p>1. กดที่ปุ่ม <b>"จุด 3 จุด"</b> หรือ <b>"เข็มทิศ"</b> มุมขวาบน</p>
+            <p>2. เลือก <b>"เปิดในเบราว์เซอร์เริ่มต้น"</b><br>(Open in default browser)</p>
+            <hr style="border: 0.5px solid #444; margin: 20px 0;">
+            <p style="font-size: 14px; color: #aaa;">เนื่องจากกล้องในแอป LINE อาจถูกจำกัดสิทธิ์ในบางเครื่อง</p>
+        </div>
+    </div>
+
     <h3>แสกนบาร์โค้ดที่ขวดน้ำ</h3>
     
     <div style="width: 90%; max-width: 400px; margin: 20px auto; position: relative;">
@@ -16,78 +53,73 @@
     </div>
     
     <p id="status" style="color: #666; padding: 0 20px;">กำลังเริ่มต้นระบบ...</p>
-    <button onclick="location.reload()" style="padding: 10px 20px; border-radius: 20px; border: none; background: #00b900; color: white; cursor: pointer;">รีเฟรชหน้าจอ</button>
+    <button onclick="location.reload()" style="padding: 10px 20px; border-radius: 20px; border: none; background: #00b900; color: white;">รีเฟรชหน้าจอ</button>
 
     <script>
-        // *** ใส่ข้อมูลของพี่ตรงนี้ ***
         const myLiffId = "2009856940-tyxcN1rB"; 
         const myScriptUrl = "https://script.google.com/macros/s/AKfycbzon--LEO1cpZVyFFd7QXW4RL2ntQ4YrroequdJu-l_xakZcKs9G_175rQZBvYm-E-nHQ/exec";
 
-       async function main() {
+        async function main() {
             try {
                 await liff.init({ liffId: myLiffId });
+                
+                // เช็คว่าเปิดใน LINE Browser หรือไม่
+                if (liff.isInClient()) {
+                    document.getElementById('guide-overlay').style.display = 'block';
+                }
+
                 if (!liff.isLoggedIn()) {
                     liff.login();
                 } else {
-                    // บรรทัดนี้จะช่วยปลุกให้ LINE ยอมให้ใช้กล้อง
-                    if (liff.getOS() !== "web") {
-                        try {
-                            await navigator.mediaDevices.getUserMedia({ video: true });
-                        } catch (e) {
-                            console.log("Camera pre-request failed", e);
-                        }
-                    }
                     startScanner();
                 }
             } catch (err) {
-                document.getElementById('status').innerText = "LIFF Error: " + err.message;
+                document.getElementById('status').innerText = "ระบบขัดข้อง: " + err.message;
             }
         }
 
-       async function startScanner() {
-    const statusElt = document.getElementById('status');
-    try {
-        // เช็คว่าเบราว์เซอร์รองรับกล้องไหม
-        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-            throw new Error("เบราว์เซอร์นี้ไม่รองรับการเข้าถึงกล้อง");
-        }
-        
-        statusElt.innerText = "กำลังขอสิทธิ์ใช้งานกล้อง...";
-        // บังคับให้เบราว์เซอร์ถาม Permission ก่อน
-        await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
-        
-        // ถ้าผ่านแล้วค่อยเริ่มสแกน
-        const codeReader = new ZXing.BrowserMultiFormatReader();
-        codeReader.decodeFromVideoDevice(null, 'video', (result, err) => {
-            if (result) {
-                // ... (โค้ดส่งข้อมูลเหมือนเดิม)
+        async function startScanner() {
+            const codeReader = new ZXing.BrowserMultiFormatReader();
+            const statusElt = document.getElementById('status');
+            const videoElt = document.getElementById('video');
+
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
+                videoElt.srcObject = stream;
+                await videoElt.play();
+
+                codeReader.decodeFromVideoDevice(null, 'video', (result) => {
+                    if (result) {
+                        statusElt.innerText = "พบรหัส: " + result.text;
+                        sendData(result.text);
+                        codeReader.reset();
+                        stream.getTracks().forEach(track => track.stop());
+                    }
+                });
+            } catch (error) {
+                statusElt.innerText = "โปรดเปิดในเบราว์เซอร์ปกติเพื่อใช้งานกล้อง";
             }
-        });
-        statusElt.innerText = "พร้อมสแกนแล้วครับ!";
-    } catch (err) {
-        statusElt.innerText = "คนใช้ต้องกดยอมรับสิทธิ์กล้องก่อนนะครับถึงจะใช้ได้";
-        console.error(err);
-    }
-}
+        }
 
         async function sendData(barcode) {
             const profile = await liff.getProfile();
             fetch(myScriptUrl, {
                 method: "POST",
                 mode: "no-cors", 
-                cache: "no-cache",
-                headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                     userId: profile.userId,
                     userName: profile.displayName,
                     barcode: barcode
                 })
             }).then(() => {
-                alert("บันทึกข้อมูลเรียบร้อย: " + barcode);
-                liff.closeWindow();
-            }).catch(err => alert("Error: " + err));
+                alert("บันทึกข้อมูลเรียบร้อย!");
+                if (!liff.isInClient()) {
+                    window.close(); 
+                } else {
+                    liff.closeWindow();
+                }
+            });
         }
-
         main();
     </script>
 </body>
