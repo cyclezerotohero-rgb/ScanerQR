@@ -21,7 +21,7 @@
             font-weight: 700;
             font-size: 26px;
             margin-top: 40px;
-            color: #1a4d2e; /* สีเขียวแบรนด์ */
+            color: #1a4d2e;
         }
         
         /* หน้าจอแนะนำแบบชี้มุมขวาล่าง */
@@ -35,57 +35,39 @@
             text-align: center;
         }
         
-        /* กล่องข้อความแนะนำ (ปรับสไตล์ให้เข้ากับแบรนด์) */
+        /* กล่องข้อความแนะนำ */
         .instruction-box {
             position: absolute;
-            bottom: 120px;
+            bottom: 150px; 
             left: 50%;
             transform: translateX(-50%);
             width: 80%;
-            background: rgba(255,255,255,0.95); /* กล่องสีขาวใส */
+            background: #333;
             padding: 20px;
-            border-radius: 20px;
-            border: 3px solid #1a4d2e; /* เส้นขอบสีเขียวแบรนด์ */
-            color: #333; /* ตัวหนังสือสีดำ */
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            border-radius: 15px;
+            border: 2px solid #ffcf00;
         }
         
-        /* การ์ตูน LOGO SORRY (น้องเมฆใส่หมวก) */
-        .brand-mascot {
-            width: 150px; /* ขนาดการ์ตูน */
-            height: auto;
-            margin-bottom: -10px; /* ขยับลงมาให้ชิดขอบกล่อง */
-            margin-top: -60px; /* ดันขึ้นไปให้โผล่พ้นกล่อง */
-        }
-        
-        /* ลูกศรชี้มุมขวาล่างแบบ CSS สามเหลี่ยม (สีเขียวแบรนด์) */
-        .arrow-point {
+        /* ลูกศรใหญ่และชี้มุมชัดเจน */
+        .arrow-down {
             position: absolute;
-            bottom: 30px; /* ตำแหน่งเกือบติดขอบล่าง */
-            right: 40px; /* ตำแหน่งเกือบติดขอบขวา */
-            width: 0;
-            height: 0;
-            border-top: 15px solid transparent;
-            border-bottom: 15px solid transparent;
-            border-left: 20px solid #1a4d2e; /* สีเขียวแบรนด์ */
-            transform: rotate(-135deg); /* หมุนให้ชี้ไปมุม */
-            
-            /* Animation ที่ทำให้เด้งและชี้ไปทางมุม */
+            bottom: 30px;
+            right: 40px;
+            font-size: 80px;
+            color: #ffcf00;
             animation: bounce-point 1s infinite alternate ease-in-out;
         }
         
-        /* Animation สำหรับลูกศรชี้มุม */
         @keyframes bounce-point {
-            0% { transform: translate(0, 0) rotate(-135deg); }
-            100% { transform: translate(15px, 15px) rotate(-135deg); }
+            0% { transform: translate(0, 0) rotate(0deg); }
+            100% { transform: translate(15px, 15px) rotate(-15deg); }
         }
         
-        /* ปรับปรุงปุ่มรีเฟรชให้พอดีตัวหนังสือ */
         .btn-refresh {
             padding: 8px 25px;
             border-radius: 25px;
             border: none;
-            background: #1a4d2e; /* สีเขียวแบรนด์ */
+            background: #1a4d2e;
             color: white;
             font-family: 'FC Iconic', sans-serif;
             font-weight: 700;
@@ -113,24 +95,19 @@
 <body>
     
     <div id="guide-overlay">
-        
-        <div style="margin-top: 150px;">
-            <img src="https://cyclezerotohero-rgb.github.io/ScanerQR/LOGO SORRY.png" class="brand-mascot" alt="CYCLE Mascot">
-        </div>
-        
         <div class="instruction-box">
-            <h2 style="color: #1a4d2e; margin-top: 0; font-size: 30px;">พบปัญหาจอดำ?</h2>
+            <h2 style="color: #ffcf00; margin-top: 0;">พบปัญหาจอดำ?</h2>
             <p>กรุณากดที่ปุ่ม <b>"แชร์"</b> หรือ <b>"เข็มทิศ"</b><br>ที่มุมขวาล่าง</p>
             <p>แล้วเลือก <b>"เปิดในเบราว์เซอร์"</b></p>
         </div>
-        <div class="arrow-point"></div>
+        <div class="arrow-down">↘️</div>
     </div>
 
     <h3>สแกนบาร์โค้ดที่ขวดน้ำ</h3>
     
     <div style="width: 90%; max-width: 400px; margin: 20px auto; position: relative;">
         <video id="video" playsinline style="width: 100%; border-radius: 15px; background: #000;"></video>
-        <div style="position: absolute; top: 50%; left: 10%; right: 10%; border-top: 2px solid red; opacity: 0.6;"></div>
+        <div style="position: absolute; top: 50%; left: 10%; right: 10%; border-top: 2px solid #ff4444; opacity: 0.7;"></div>
     </div>
     
     <p id="status" style="color: #666; padding: 0 20px;">กำลังเริ่มต้นระบบ...</p>
@@ -140,4 +117,69 @@
     </div>
 
     <div class="logo-container">
-        <img src="
+        <img src="https://cyclezerotohero-rgb.github.io/ScanerQR/CYCLE.png" class="brand-logo" alt="CYCLE Logo">
+    </div>
+
+    <script>
+        // อย่าลืมใส่ ID และ URL ของพี่นะคั้บ
+        const myLiffId = "2009856940-tyxcN1rB"; 
+        const myScriptUrl = "https://script.google.com/macros/s/AKfycbzon--LEO1cpZVyFFd7QXW4RL2ntQ4YrroH9S0v0hO2r666R_XyU7lPqI2Y0qY5T_8/exec"; 
+
+        async function main() {
+            try {
+                await liff.init({ liffId: myLiffId });
+                
+                // เช็คว่าเปิดในแอป LINE หรือไม่
+                if (liff.isInClient()) {
+                    document.getElementById('guide-overlay').style.display = 'block';
+                }
+
+                if (!liff.isLoggedIn()) {
+                    liff.login();
+                } else {
+                    startScanner();
+                }
+            } catch (err) {
+                document.getElementById('status').innerText = "LIFF Error: " + err.message;
+            }
+        }
+
+        async function startScanner() {
+            const codeReader = new ZXing.BrowserMultiFormatReader();
+            const videoElt = document.getElementById('video');
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
+                videoElt.srcObject = stream;
+                await videoElt.play();
+                codeReader.decodeFromVideoDevice(null, 'video', (result) => {
+                    if (result) {
+                        sendData(result.text);
+                        codeReader.reset();
+                        stream.getTracks().forEach(track => track.stop());
+                    }
+                });
+            } catch (error) {
+                // ถ้ากล้องเปิดไม่ได้ ก็จะโชว์ Overlay ชี้เป้า
+                document.getElementById('guide-overlay').style.display = 'block';
+            }
+        }
+
+        async function sendData(barcode) {
+            const profile = await liff.getProfile();
+            fetch(myScriptUrl, {
+                method: "POST",
+                mode: "no-cors", 
+                body: JSON.stringify({
+                    userId: profile.userId,
+                    userName: profile.displayName,
+                    barcode: barcode
+                })
+            }).then(() => {
+                alert("บันทึกข้อมูลเรียบร้อย!");
+                liff.closeWindow();
+            });
+        }
+        main();
+    </script>
+</body>
+</html>
