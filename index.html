@@ -22,7 +22,19 @@
         // *** ใส่ข้อมูลของพี่ตรงนี้ ***
         const myLiffId = "2009856940-tyxcN1rB"; 
         const myScriptUrl = "https://script.google.com/macros/s/AKfycbzon--LEO1cpZVyFFd7QXW4RL2ntQ4YrroequdJu-l_xakZcKs9G_175rQZBvYm-E-nHQ/exec";
-
+async function main() {
+    try {
+        await liff.init({ liffId: myLiffId });
+        if (!liff.isLoggedIn()) {
+            liff.login();
+        } else {
+            // บรรทัดนี้จะช่วยปลุกให้ LINE ยอมให้ใช้กล้อง
+            if (!liff.getOS() === "web") {
+                await navigator.mediaDevices.getUserMedia({ video: true });
+            }
+            startScanner();
+        }
+// ... 
         async function main() {
             try {
                 await liff.init({ liffId: myLiffId });
