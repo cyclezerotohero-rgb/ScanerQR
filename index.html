@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Barcode Scanner</title>
+    <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+    <script src="https://unpkg.com/@zxing/library@latest"></script>
+</head>
+<body style="text-align: center; font-family: sans-serif; background-color: #f0f0f0; padding: 20px;">
+    <h3>แสกนบาร์โค้ดที่ขวดน้ำ</h3>
+    <div style="position: relative; width: 100%; max-width: 400px; margin: auto;">
+        <video id="video" style="width: 100%; border-radius: 10px; border: 5px solid white;"></video>
+    </div>
+    <p id="status">กำลังเปิดกล้อง...</p>
+
+    <script>
+        // *** แก้ไข 2 จุดนี้ ***
+        const liffId = "https://liff.line.me/2009856940-tyxcN1rB"; 
+        const scriptUrl = "https://docs.google.com/spreadsheets/d/1Auuy_1dCxmtAmbxZcK31N0U4_Chm3Y1FqZNd6dGWEGc/edit?usp=sharing";
+
+        async function main() {
+            try {
+                await liff.init({ liffId: liffId });
+                if (!liff.isLoggedIn()) {
+                    liff.login();
+                } else {
+                    startScanner();
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        function startScanner() {
+            const codeReader = new ZXing.BrowserMultiFormatReader();
+            codeReader.decodeFromVideoDevice(null, 'video', (result, err) => {
+                if (result) {
+                    document.getElementById('status').innerText = "กำลังบันทึก: " + result.text;
+                    sendData(result.text);
+                }
+            });
+        }
+
+        async function sendData(barcode) {
+            const profile = await liff.getProfile();
+            fetch(scriptUrl, {
+                method: "POST",
+                mode: "no-cors",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    userId: profile.userId,
+                    userName: profile.displayName,
+                    barcode: barcode
+                })
+            }).then(() => {
+                alert("บันทึกข้อมูลเรียบร้อย!");
+                liff.closeWindow();
+            });
+        }
+        main();
+    </script>
+</body>
+</html>
