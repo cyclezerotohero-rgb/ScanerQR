@@ -10,7 +10,7 @@
     <style>
         body {
             text-align: center;
-            font-family: 'FC Iconic', sans-serif; /* ใช้ฟอนต์ FC Iconic */
+            font-family: 'FC Iconic', sans-serif;
             background-color: #f8f9fa;
             margin: 0;
             display: flex;
@@ -18,10 +18,10 @@
             min-height: 100vh;
         }
         h3 {
-            font-weight: 700; /* ตั้งค่า Bold */
-            font-size: 24px;
+            font-weight: 700; /* FC Iconic ตัว Bold */
+            font-size: 26px;
             margin-top: 40px;
-            color: #333;
+            color: #1a4d2e; /* สีเขียวเข้มให้เข้ากับโลโก้ */
         }
         #guide-overlay {
             display: none;
@@ -56,12 +56,13 @@
             50% { transform: translateY(10px); }
         }
         .logo-container {
-            margin-top: auto; /* ดันโลโก้ไปล่างสุด */
-            padding-bottom: 30px;
+            margin-top: auto; 
+            padding-bottom: 40px;
         }
         .brand-logo {
-            width: 150px; /* ปรับขนาดโลโก้ตามต้องการ */
+            width: 180px; /* ขนาดโลโก้ */
             height: auto;
+            opacity: 0.9;
         }
     </style>
 </head>
@@ -80,19 +81,19 @@
     
     <div style="width: 90%; max-width: 400px; margin: 20px auto; position: relative;">
         <video id="video" playsinline style="width: 100%; border-radius: 15px; background: #000;"></video>
-        <div style="position: absolute; top: 50%; left: 10%; right: 10%; border-top: 2px solid red; opacity: 0.6;"></div>
+        <div style="position: absolute; top: 50%; left: 10%; right: 10%; border-top: 2px solid #ff4444; opacity: 0.7;"></div>
     </div>
     
     <p id="status" style="color: #666; padding: 0 20px;">กำลังเริ่มต้นระบบ...</p>
-    <button onclick="location.reload()" style="padding: 10px 25px; border-radius: 25px; border: none; background: #00b900; color: white; font-family: 'FC Iconic'; font-weight: 700;">รีเฟรชหน้าจอ</button>
+    <button onclick="location.reload()" style="padding: 12px 30px; border-radius: 30px; border: none; background: #1a4d2e; color: white; font-family: 'FC Iconic'; font-weight: 700; font-size: 18px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">รีเฟรชหน้าจอ</button>
 
     <div class="logo-container">
         <img src="https://cyclezerotohero-rgb.github.io/ScanerQR/CYCLE.png" class="brand-logo" alt="CYCLE Logo">
     </div>
 
     <script>
-        const myLiffId = "2009856940-tyxcN1rB";
-        const myScriptUrl = "https://script.google.com/macros/s/AKfycbzon--LEO1cpZVyFFd7QXW4RL2ntQ4Yrro.../exec";
+        const myLiffId = "2009856940-tyxcN1rB"; 
+        const myScriptUrl = "https://script.google.com/macros/s/AKfycbzon--LEO1cpZVyFFd7QXW4RL2ntQ4YrroH9S0v0hO2r666R_XyU7lPqI2Y0qY5T_8/exec"; 
 
         async function main() {
             try {
@@ -106,7 +107,7 @@
                     startScanner();
                 }
             } catch (err) {
-                document.getElementById('status').innerText = "Error: " + err.message;
+                document.getElementById('status').innerText = "LIFF Error: " + err.message;
             }
         }
 
