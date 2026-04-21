@@ -11,17 +11,17 @@
     <h3>แสกนบาร์โค้ดที่ขวดน้ำ</h3>
     
     <div style="width: 90%; max-width: 400px; margin: 20px auto; position: relative;">
-        <video id="video" style="width: 100%; border-radius: 15px; background: #000;"></video>
+        <video id="video" playsinline style="width: 100%; border-radius: 15px; background: #000;"></video>
         <div style="position: absolute; top: 50%; left: 10%; right: 10%; border-top: 2px solid red; opacity: 0.5;"></div>
     </div>
     
-    <p id="status" style="color: #666;">กำลังเข้าถึงกล้องหลัง...</p>
-    <button onclick="location.reload()" style="padding: 10px 20px; border-radius: 20px; border: none; background: #00b900; color: white;">รีเฟรชหน้าจอ</button>
+    <p id="status" style="color: #666; padding: 0 20px;">กำลังเริ่มต้นระบบ...</p>
+    <button onclick="location.reload()" style="padding: 10px 20px; border-radius: 20px; border: none; background: #00b900; color: white; cursor: pointer;">รีเฟรชหน้าจอ</button>
 
     <script>
-        // *** อย่าลืมแก้ 2 จุดนี้ให้เป็นของคุณเอง ***
+        // *** ใส่ข้อมูลของพี่ตรงนี้ ***
         const myLiffId = "2009856940-tyxcN1rB"; 
-        const myScriptUrl = "https://script.google.com/macros/s/AKfycbzon--LEO1cpZVyFFd7QXW4RL2ntQ4YrroequdJu-l_xakZcKs9G_175rQZBvYm-E-nHQ/exec";
+        const myScriptUrl = "ใส่_URL_ที่ลงท้ายด้วย_exec_ตรงนี้";
 
         async function main() {
             try {
@@ -39,24 +39,31 @@
         async function startScanner() {
             const codeReader = new ZXing.BrowserMultiFormatReader();
             const statusElt = document.getElementById('status');
+            const videoElt = document.getElementById('video');
 
             try {
-                // คำสั่งสำคัญ: เจาะจงเลือกใช้กล้องหลัง environment
-                const constraints = { video: { facingMode: "environment" } };
+                statusElt.innerText = "กำลังขออนุญาตเข้าถึงกล้องหลัง...";
                 
-                codeReader.decodeFromConstraints(constraints, 'video', (result, err) => {
+                // บังคับขอสิทธิ์กล้องก่อนเริ่ม
+                const stream = await navigator.mediaDevices.getUserMedia({ 
+                    video: { facingMode: "environment" } 
+                });
+                
+                videoElt.srcObject = stream;
+                await videoElt.play();
+
+                codeReader.decodeFromVideoDevice(null, 'video', (result, err) => {
                     if (result) {
                         statusElt.innerText = "พบรหัส: " + result.text;
                         statusElt.style.color = "green";
                         sendData(result.text);
-                        codeReader.reset(); // หยุดสแกนชั่วคราวเมื่อเจอ
-                    }
-                    if (err && !(err instanceof ZXing.NotFoundException)) {
-                        console.error(err);
+                        codeReader.reset();
+                        stream.getTracks().forEach(track => track.stop());
                     }
                 });
                 statusElt.innerText = "กล้องพร้อมใช้งาน ส่องไปที่บาร์โค้ดได้เลย";
             } catch (error) {
+                console.error(error);
                 statusElt.innerText = "ไม่สามารถเปิดกล้องได้: " + error.message;
                 statusElt.style.color = "red";
             }
