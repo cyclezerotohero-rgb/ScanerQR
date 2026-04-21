@@ -7,46 +7,67 @@
     <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
     <script src="https://unpkg.com/@zxing/library@latest"></script>
 </head>
-<body style="text-align: center; font-family: sans-serif; background-color: #f0f0f0; padding: 20px;">
+<body style="text-align: center; font-family: sans-serif; background-color: #f8f9fa; margin: 0; padding-top: 50px;">
     <h3>แสกนบาร์โค้ดที่ขวดน้ำ</h3>
-    <div style="position: relative; width: 100%; max-width: 400px; margin: auto;">
-        <video id="video" style="width: 100%; border-radius: 10px; border: 5px solid white;"></video>
+    
+    <div style="width: 90%; max-width: 400px; margin: 20px auto; position: relative;">
+        <video id="video" style="width: 100%; border-radius: 15px; background: #000;"></video>
+        <div style="position: absolute; top: 50%; left: 10%; right: 10%; border-top: 2px solid red; opacity: 0.5;"></div>
     </div>
-    <p id="status">กำลังเปิดกล้อง...</p>
+    
+    <p id="status" style="color: #666;">กำลังเข้าถึงกล้องหลัง...</p>
+    <button onclick="location.reload()" style="padding: 10px 20px; border-radius: 20px; border: none; background: #00b900; color: white;">รีเฟรชหน้าจอ</button>
 
     <script>
-        // *** แก้ไข 2 จุดนี้ ***
-        const liffId = "https://liff.line.me/2009856940-tyxcN1rB"; 
-        const scriptUrl = "https://docs.google.com/spreadsheets/d/1Auuy_1dCxmtAmbxZcK31N0U4_Chm3Y1FqZNd6dGWEGc/edit?usp=sharing";
+        // *** อย่าลืมแก้ 2 จุดนี้ให้เป็นของคุณเอง ***
+        const myLiffId = "https://liff.line.me/2009856940-tyxcN1rB"; 
+        const myScriptUrl = "https://docs.google.com/spreadsheets/d/1Auuy_1dCxmtAmbxZcK31N0U4_Chm3Y1FqZNd6dGWEGc/edit?usp=sharing";
 
         async function main() {
             try {
-                await liff.init({ liffId: liffId });
+                await liff.init({ liffId: myLiffId });
                 if (!liff.isLoggedIn()) {
                     liff.login();
                 } else {
                     startScanner();
                 }
             } catch (err) {
-                console.error(err);
+                document.getElementById('status').innerText = "LIFF Error: " + err.message;
             }
         }
 
-        function startScanner() {
+        async function startScanner() {
             const codeReader = new ZXing.BrowserMultiFormatReader();
-            codeReader.decodeFromVideoDevice(null, 'video', (result, err) => {
-                if (result) {
-                    document.getElementById('status').innerText = "กำลังบันทึก: " + result.text;
-                    sendData(result.text);
-                }
-            });
+            const statusElt = document.getElementById('status');
+
+            try {
+                // คำสั่งสำคัญ: เจาะจงเลือกใช้กล้องหลัง environment
+                const constraints = { video: { facingMode: "environment" } };
+                
+                codeReader.decodeFromConstraints(constraints, 'video', (result, err) => {
+                    if (result) {
+                        statusElt.innerText = "พบรหัส: " + result.text;
+                        statusElt.style.color = "green";
+                        sendData(result.text);
+                        codeReader.reset(); // หยุดสแกนชั่วคราวเมื่อเจอ
+                    }
+                    if (err && !(err instanceof ZXing.NotFoundException)) {
+                        console.error(err);
+                    }
+                });
+                statusElt.innerText = "กล้องพร้อมใช้งาน ส่องไปที่บาร์โค้ดได้เลย";
+            } catch (error) {
+                statusElt.innerText = "ไม่สามารถเปิดกล้องได้: " + error.message;
+                statusElt.style.color = "red";
+            }
         }
 
         async function sendData(barcode) {
             const profile = await liff.getProfile();
-            fetch(scriptUrl, {
+            fetch(myScriptUrl, {
                 method: "POST",
-                mode: "no-cors",
+                mode: "no-cors", 
+                cache: "no-cache",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                     userId: profile.userId,
@@ -54,10 +75,11 @@
                     barcode: barcode
                 })
             }).then(() => {
-                alert("บันทึกข้อมูลเรียบร้อย!");
+                alert("บันทึกข้อมูลเรียบร้อย: " + barcode);
                 liff.closeWindow();
-            });
+            }).catch(err => alert("Error: " + err));
         }
+
         main();
     </script>
 </body>
