@@ -4,10 +4,25 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Barcode Scanner</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=FC+Iconic:wght@700&display=swap">
     <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
     <script src="https://unpkg.com/@zxing/library@latest"></script>
     <style>
-        /* สไตล์หน้าจอแนะนำ */
+        body {
+            text-align: center;
+            font-family: 'FC Iconic', sans-serif; /* ใช้ฟอนต์ FC Iconic */
+            background-color: #f8f9fa;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        h3 {
+            font-weight: 700; /* ตั้งค่า Bold */
+            font-size: 24px;
+            margin-top: 40px;
+            color: #333;
+        }
         #guide-overlay {
             display: none;
             position: fixed;
@@ -16,13 +31,23 @@
             color: white;
             z-index: 9999;
             text-align: center;
-            padding-top: 20px;
         }
-        .arrow {
+        .instruction-box {
             position: absolute;
-            top: 10px;
-            right: 20px;
-            font-size: 50px;
+            bottom: 120px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80%;
+            background: #333;
+            padding: 20px;
+            border-radius: 15px;
+            border: 2px solid #ffcf00;
+        }
+        .arrow-down {
+            position: absolute;
+            bottom: 30px;
+            right: 40px;
+            font-size: 60px;
             color: #ffcf00;
             animation: bounce 1s infinite;
         }
@@ -30,74 +55,77 @@
             0%, 100% { transform: translateY(0); }
             50% { transform: translateY(10px); }
         }
+        .logo-container {
+            margin-top: auto; /* ดันโลโก้ไปล่างสุด */
+            padding-bottom: 30px;
+        }
+        .brand-logo {
+            width: 150px; /* ปรับขนาดโลโก้ตามต้องการ */
+            height: auto;
+        }
     </style>
 </head>
-<body style="text-align: center; font-family: sans-serif; background-color: #f8f9fa; margin: 0; padding-top: 50px;">
+<body>
     
     <div id="guide-overlay">
-        <div class="arrow">↗️</div>
-        <div style="margin-top: 80px; padding: 20px;">
-            <h2 style="color: #ffcf00;">เพื่อการใช้งานที่สมบูรณ์</h2>
-            <p>1. กดที่ปุ่ม <b>"จุด 3 จุด"</b> หรือ <b>"เข็มทิศ"</b> มุมขวาบน</p>
-            <p>2. เลือก <b>"เปิดในเบราว์เซอร์เริ่มต้น"</b><br>(Open in default browser)</p>
-            <hr style="border: 0.5px solid #444; margin: 20px 0;">
-            <p style="font-size: 14px; color: #aaa;">เนื่องจากกล้องในแอป LINE อาจถูกจำกัดสิทธิ์ในบางเครื่อง</p>
+        <div class="instruction-box">
+            <h2 style="color: #ffcf00; margin-top: 0;">พบปัญหาจอดำ?</h2>
+            <p>กรุณากดที่ปุ่ม <b>"แชร์"</b> หรือ <b>"เข็มทิศ"</b><br>ที่มุมขวาล่าง</p>
+            <p>แล้วเลือก <b>"เปิดในเบราว์เซอร์"</b></p>
         </div>
+        <div class="arrow-down">↘️</div>
     </div>
 
-    <h3>แสกนบาร์โค้ดที่ขวดน้ำ</h3>
+    <h3>สแกนบาร์โค้ดที่ขวดน้ำ</h3>
     
     <div style="width: 90%; max-width: 400px; margin: 20px auto; position: relative;">
         <video id="video" playsinline style="width: 100%; border-radius: 15px; background: #000;"></video>
-        <div style="position: absolute; top: 50%; left: 10%; right: 10%; border-top: 2px solid red; opacity: 0.5;"></div>
+        <div style="position: absolute; top: 50%; left: 10%; right: 10%; border-top: 2px solid red; opacity: 0.6;"></div>
     </div>
     
     <p id="status" style="color: #666; padding: 0 20px;">กำลังเริ่มต้นระบบ...</p>
-    <button onclick="location.reload()" style="padding: 10px 20px; border-radius: 20px; border: none; background: #00b900; color: white;">รีเฟรชหน้าจอ</button>
+    <button onclick="location.reload()" style="padding: 10px 25px; border-radius: 25px; border: none; background: #00b900; color: white; font-family: 'FC Iconic'; font-weight: 700;">รีเฟรชหน้าจอ</button>
+
+    <div class="logo-container">
+        <img src="https://cyclezerotohero-rgb.github.io/ScanerQR/CYCLE.png" class="brand-logo" alt="CYCLE Logo">
+    </div>
 
     <script>
-        const myLiffId = "2009856940-tyxcN1rB"; 
-        const myScriptUrl = "ใส่_URL_ที่ลงท้ายด้วย_exec_ตรงนี้";
+        const myLiffId = "2009856940-tyxcN1rB";
+        const myScriptUrl = "https://script.google.com/macros/s/AKfycbzon--LEO1cpZVyFFd7QXW4RL2ntQ4Yrro.../exec";
 
         async function main() {
             try {
                 await liff.init({ liffId: myLiffId });
-                
-                // เช็คว่าเปิดใน LINE Browser หรือไม่
                 if (liff.isInClient()) {
                     document.getElementById('guide-overlay').style.display = 'block';
                 }
-
                 if (!liff.isLoggedIn()) {
                     liff.login();
                 } else {
                     startScanner();
                 }
             } catch (err) {
-                document.getElementById('status').innerText = "ระบบขัดข้อง: " + err.message;
+                document.getElementById('status').innerText = "Error: " + err.message;
             }
         }
 
         async function startScanner() {
             const codeReader = new ZXing.BrowserMultiFormatReader();
-            const statusElt = document.getElementById('status');
             const videoElt = document.getElementById('video');
-
             try {
                 const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
                 videoElt.srcObject = stream;
                 await videoElt.play();
-
                 codeReader.decodeFromVideoDevice(null, 'video', (result) => {
                     if (result) {
-                        statusElt.innerText = "พบรหัส: " + result.text;
                         sendData(result.text);
                         codeReader.reset();
                         stream.getTracks().forEach(track => track.stop());
                     }
                 });
             } catch (error) {
-                statusElt.innerText = "โปรดเปิดในเบราว์เซอร์ปกติเพื่อใช้งานกล้อง";
+                document.getElementById('guide-overlay').style.display = 'block';
             }
         }
 
@@ -113,11 +141,7 @@
                 })
             }).then(() => {
                 alert("บันทึกข้อมูลเรียบร้อย!");
-                if (!liff.isInClient()) {
-                    window.close(); 
-                } else {
-                    liff.closeWindow();
-                }
+                liff.closeWindow();
             });
         }
         main();
