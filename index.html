@@ -18,7 +18,6 @@
         #scan-page { display: none; }
         #video { width: 100%; border-radius: 15px; background: #000; margin-top: 20px; border: 4px solid #1a4d2e; }
         .btn-refresh { background: #28a745; color: white; padding: 12px 25px; border: none; border-radius: 30px; font-size: 16px; margin-top: 15px; cursor: pointer; font-weight: bold; font-family: 'FC Iconic'; }
-        .btn-edit { background: none; border: none; color: #1a4d2e; text-decoration: underline; cursor: pointer; margin-top: 20px; font-size: 14px; font-family: 'FC Iconic'; }
         #guide-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 9999; }
         .instruction-box { position: absolute; bottom: 120px; left: 50%; transform: translateX(-50%); width: 85%; background: white; padding: 20px; border-radius: 20px; color: #333; border: 3px solid #1a4d2e; }
     </style>
@@ -26,16 +25,19 @@
 <body>
 
     <div id="setup-page" class="container">
-        <img src="https://cyclezerotohero-rgb.github.io/ScanerQR/CYCLE.png" style="width: 120px;">
+        <img src="https://cyclezerotohero-rgb.github.io/ScanerQR/CYCLE.png" style="width: 120px; margin-bottom: 10px;">
         <div class="info-card">
             <h2>Cycle อยากรู้จัก!!</h2>
-            <p style="color:#666; font-size:14px;">โปรดกรอกข้อมูลและองค์กรของท่าน</p>
+            <p style="color:#666; font-size:14px; margin-bottom: 20px;">โปรดกรอกข้อมูลและองค์กรของท่าน</p>
+            
             <label>ชื่อ-นามสกุล</label>
             <input type="text" id="real-name" placeholder="พิมพ์ชื่อของท่านที่นี่">
+            
             <label>องค์กร/สถานที่</label>
             <select id="org-select">
                 <option value="โรงเรียนสารสาสน์วิเทศเชียงใหม่">โรงเรียนสารสาสน์วิเทศเชียงใหม่</option>
             </select>
+            
             <button class="btn-confirm" onclick="saveInfo()">ยืนยันข้อมูล</button>
         </div>
     </div>
@@ -46,13 +48,13 @@
         <video id="video" playsinline></video>
         <button class="btn-refresh" onclick="location.reload()"> รีเฟรชหน้าสแกน</button>
         <p id="status" style="margin-top:15px; color:#666;">กรุณาส่องกล้องไปที่บาร์โค้ด</p>
-        <button class="btn-edit" onclick="clearUserData()">แก้ไขชื่อ/องค์กร</button>
+        <button onclick="localStorage.clear(); location.reload();" style="background:none; border:none; color:gray; text-decoration:underline; margin-top:20px; font-family:'FC Iconic';">แก้ไขชื่อ/องค์กร</button>
     </div>
 
     <div id="guide-overlay">
         <div class="instruction-box">
             <h2>พบปัญหาจอดำ?</h2>
-            <p>กดปุ่ม <b>"แชร์"</b> หรือ <b>"เข็มทิศ"</b> มุมขวาล่างแล้วเลือก <b>"เปิดในเบราว์เซอร์"</b></p>
+            <p>กดปุ่ม <b>"แชร์"</b> หรือ <b>"เข็มทิศ"</b> มุมขวาล่าง<br>แล้วเลือก <b>"เปิดในเบราว์เซอร์"</b></p>
         </div>
     </div>
 
@@ -64,17 +66,22 @@
             await liff.init({ liffId: myLiffId });
             if (!liff.isLoggedIn()) liff.login();
             
-            const n = localStorage.getItem('cycle_name');
-            const o = localStorage.getItem('cycle_org');
-            if (n && o) showScanPage(n);
+            // ใช้ Key 'cycle_v1_name' เพื่อไม่ให้ตีกับของเก่า
+            const cachedName = localStorage.getItem('cycle_v1_name');
+            const cachedOrg = localStorage.getItem('cycle_v1_org');
+
+            if (cachedName && cachedOrg) {
+                showScanPage(cachedName);
+            }
         }
 
         function saveInfo() {
             const name = document.getElementById('real-name').value.trim();
             const org = document.getElementById('org-select').value;
             if(!name) return alert("กรุณากรอกชื่อก่อนนะครับ");
-            localStorage.setItem('cycle_name', name);
-            localStorage.setItem('cycle_org', org);
+            
+            localStorage.setItem('cycle_v1_name', name);
+            localStorage.setItem('cycle_v1_org', org);
             showScanPage(name);
         }
 
@@ -83,11 +90,6 @@
             document.getElementById('scan-page').style.display = 'block';
             document.getElementById('user-display').innerText = "สวัสดีคุณ: " + name;
             startScanner();
-        }
-
-        function clearUserData() {
-            localStorage.clear();
-            location.reload();
         }
 
         async function startScanner() {
@@ -108,26 +110,23 @@
 
         async function sendData(barcode) {
             const profile = await liff.getProfile();
-            const n = localStorage.getItem('cycle_name');
-            const o = localStorage.getItem('cycle_org');
+            const name = localStorage.getItem('cycle_v1_name');
+            const org = localStorage.getItem('cycle_v1_org');
             
             try {
                 const response = await fetch(myScriptUrl, {
                     method: "POST",
                     body: JSON.stringify({
                         userId: profile.userId,
-                        realName: n,        // ชื่อตัวแปร
-                        organization: o,    // สถานที่
+                        realName: name, 
+                        organization: org, 
                         barcode: barcode
                     })
                 });
                 const res = await response.text();
                 if (res.toUpperCase().includes("SUCCESS")) {
-                    alert("✅ บันทึกสำเร็จ! ขอบคุณครับคุณ " + n);
+                    alert("✅ บันทึกสำเร็จ! ขอบคุณครับคุณ " + name);
                     liff.closeWindow();
-                } else if (res.toUpperCase().includes("DUPLICATE")) {
-                    alert("❌ ขวดนี้ถูกสแกนไปแล้วครับ");
-                    location.reload();
                 }
             } catch (e) { alert("เชื่อมต่อผิดพลาด"); }
         }
