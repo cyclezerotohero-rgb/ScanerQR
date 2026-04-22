@@ -4,43 +4,32 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cycle Smart Bin</title>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=FC+Iconic:wght@700&display=swap">
     <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
     <script src="https://unpkg.com/@zxing/library@latest"></script>
     <style>
-        body { text-align: center; font-family: 'FC Iconic', sans-serif; background-color: #f8f9fa; margin: 0; }
-        .container { padding: 30px 20px; display: flex; flex-direction: column; min-height: 100vh; align-items: center; }
-        .info-card { background: white; padding: 30px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 90%; max-width: 350px; border: 2px solid #1a4d2e; margin-top: 20px; }
-        h2 { color: #1a4d2e; margin: 0; font-size: 28px; }
-        label { display: block; text-align: left; margin-bottom: 5px; color: #1a4d2e; font-weight: bold; }
-        input, select { width: 100%; padding: 12px; margin-bottom: 20px; border-radius: 10px; border: 1px solid #ddd; box-sizing: border-box; font-size: 16px; }
-        .btn-confirm { background: #1a4d2e; color: white; padding: 15px; width: 100%; border: none; border-radius: 30px; font-size: 18px; font-weight: 700; cursor: pointer; }
-        #scan-page { display: none; }
-        #video { width: 100%; border-radius: 15px; background: #000; margin-top: 20px; border: 4px solid #1a4d2e; }
-        .btn-refresh { background: #28a745; color: white; padding: 12px 25px; border: none; border-radius: 30px; font-size: 16px; margin-top: 15px; cursor: pointer; }
+        body { text-align: center; font-family: sans-serif; background-color: #f0f2f5; padding: 20px; }
+        .card { background: white; padding: 25px; border-radius: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); max-width: 350px; margin: auto; border: 2px solid #1a4d2e; }
+        input, select { width: 100%; padding: 12px; margin: 10px 0; border-radius: 8px; border: 1px solid #ddd; box-sizing: border-box; }
+        button { background: #1a4d2e; color: white; border: none; padding: 15px; width: 100%; border-radius: 30px; font-weight: bold; cursor: pointer; font-size: 16px; }
+        #video { width: 100%; border-radius: 12px; margin-top: 15px; border: 3px solid #1a4d2e; background: #000; }
     </style>
 </head>
 <body>
 
-    <div id="setup-page" class="container">
-        <div class="info-card">
-            <h2>Cycle อยากรู้จัก!!</h2>
-            <p style="color:#666;">กรุณากรอกชื่อและเลือกสถานที่</p>
-            <label>ชื่อ-นามสกุล</label>
-            <input type="text" id="real-name" placeholder="พิมพ์ชื่อของท่านที่นี่">
-            <label>องค์กร/สถานที่</label>
-            <select id="org-select">
-                <option value="โรงเรียนสารสาสน์วิเทศเชียงใหม่">โรงเรียนสารสาสน์วิเทศเชียงใหม่</option>
-            </select>
-            <button class="btn-confirm" onclick="saveInfo()">ยืนยันข้อมูล</button>
-        </div>
+    <div id="setup-page" class="card">
+        <h2 style="color: #1a4d2e;">กรอกข้อมูลผู้ใช้งาน</h2>
+        <input type="text" id="real-name" placeholder="ชื่อ - นามสกุล">
+        <select id="org-select">
+            <option value="โรงเรียนสารสาสน์วิเทศเชียงใหม่">โรงเรียนสารสาสน์วิเทศเชียงใหม่</option>
+        </select>
+        <button onclick="saveInfo()">เริ่มใช้งาน</button>
     </div>
 
-    <div id="scan-page" class="container">
-        <h3 id="user-display" style="color:#1a4d2e;"></h3>
+    <div id="scan-page" style="display:none;" class="card">
+        <h3 id="user-display" style="color: #1a4d2e; margin-top: 0;"></h3>
         <video id="video" playsinline></video>
-        <button class="btn-refresh" onclick="location.reload()"> รีเฟรชหน้าสแกน</button>
-        <p id="status" style="margin-top:15px; color:#666;">กรุณาส่องกล้องไปที่บาร์โค้ด</p>
+        <p id="status" style="color: #666;">รอการสแกนบาร์โค้ด...</p>
+        <button onclick="location.reload()" style="background:#28a745;">  รีเฟรชกล้อง</button>
     </div>
 
     <script>
@@ -50,74 +39,71 @@
         async function main() {
             await liff.init({ liffId: myLiffId });
             if (!liff.isLoggedIn()) liff.login();
-
-            const cachedName = localStorage.getItem('cycle_name');
-            const cachedOrg = localStorage.getItem('cycle_org');
-            if (cachedName && cachedOrg) {
-                showScanPage(cachedName);
-            }
+            
+            const n = localStorage.getItem('user_name');
+            const o = localStorage.getItem('user_org');
+            if (n && o) showScan(n);
         }
 
         function saveInfo() {
-            const name = document.getElementById('real-name').value.trim();
-            const org = document.getElementById('org-select').value;
-            if(!name) return alert("กรุณากรอกชื่อก่อนนะครับ");
-            
-            localStorage.setItem('cycle_name', name);
-            localStorage.setItem('cycle_org', org);
-            showScanPage(name);
+            const n = document.getElementById('real-name').value.trim();
+            const o = document.getElementById('org-select').value;
+            if(!n) return alert("กรุณากรอกชื่อก่อนนะครับ");
+            localStorage.setItem('user_name', n);
+            localStorage.setItem('user_org', o);
+            showScan(n);
         }
 
-        function showScanPage(name) {
+        function showScan(n) {
             document.getElementById('setup-page').style.display = 'none';
             document.getElementById('scan-page').style.display = 'block';
-            document.getElementById('user-display').innerText = "สวัสดีคุณ: " + name;
-            startScanner();
+            document.getElementById('user-display').innerText = "คุณ: " + n;
+            startCamera();
         }
 
-        async function startScanner() {
+        async function startCamera() {
             const codeReader = new ZXing.BrowserMultiFormatReader();
+            const video = document.getElementById('video');
             try {
                 const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
-                document.getElementById('video').srcObject = stream;
-                await document.getElementById('video').play();
+                video.srcObject = stream;
+                await video.play();
+                
                 codeReader.decodeFromVideoDevice(null, 'video', (result) => {
                     if (result) {
                         sendData(result.text);
                         codeReader.reset();
-                        stream.getTracks().forEach(t => t.stop());
+                        stream.getTracks().forEach(track => track.stop());
                     }
                 });
-            } catch (err) { alert("กล้องขัดข้อง กรุณาเปิดในเบราว์เซอร์ปกติ"); }
+            } catch (err) { alert("ไม่สามารถเปิดกล้องได้"); }
         }
 
         async function sendData(barcode) {
             const profile = await liff.getProfile();
-            const name = localStorage.getItem('cycle_name');
-            const org = localStorage.getItem('cycle_org');
-            
+            const name = localStorage.getItem('user_name');
+            const org = localStorage.getItem('user_org');
             document.getElementById('status').innerText = "กำลังบันทึกข้อมูล...";
-            
+
             try {
                 const response = await fetch(myScriptUrl, {
                     method: "POST",
                     body: JSON.stringify({
-                        userId: profile.userId, 
-                        userName: name,      // ส่งชื่อไปที่ Apps Script
-                        userLocation: org,   // ส่งสถานที่ไปที่ Apps Script
+                        userId: profile.userId,
+                        userName: name,
+                        userLocation: org,
                         barcode: barcode
                     })
                 });
-                
-                const result = await response.text();
-                if (result.toUpperCase().includes("SUCCESS")) {
-                    alert("✅ บันทึกสำเร็จ! ขอบคุณครับคุณ " + name);
+                const resText = await response.text();
+                if (resText.toUpperCase().includes("SUCCESS")) {
+                    alert("✅ บันทึกข้อมูลสำเร็จ!");
                     liff.closeWindow();
-                } else if (result.toUpperCase().includes("DUPLICATE")) {
-                    alert("❌ ขวดนี้ถูกสแกนไปแล้วครับ!");
+                } else if (resText.toUpperCase().includes("DUPLICATE")) {
+                    alert("❌ บาร์โค้ดนี้ถูกสแกนไปแล้ว");
                     location.reload();
                 }
-            } catch (e) { alert("เชื่อมต่อฐานข้อมูลไม่ได้"); }
+            } catch (e) { alert("เชื่อมต่อผิดพลาด"); }
         }
         main();
     </script>
