@@ -10,109 +10,54 @@
     <style>
         body { text-align: center; font-family: 'FC Iconic', sans-serif; background-color: #f8f9fa; margin: 0; }
         .container { padding: 30px 20px; display: flex; flex-direction: column; min-height: 100vh; align-items: center; }
-        
-        /* สไตล์การ์ดกรอกข้อมูล */
         .info-card { background: white; padding: 30px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 90%; max-width: 350px; border: 2px solid #1a4d2e; margin-top: 20px; }
         h2 { color: #1a4d2e; margin: 0; font-size: 28px; }
-        p.sub-title { color: #666; font-size: 14px; margin-top: 5px; margin-bottom: 25px; }
         label { display: block; text-align: left; margin-bottom: 5px; color: #1a4d2e; font-weight: bold; }
-        input, select { width: 100%; padding: 12px; margin-bottom: 20px; border-radius: 10px; border: 1px solid #ddd; box-sizing: border-box; font-family: 'FC Iconic'; font-size: 16px; }
-        
+        input, select { width: 100%; padding: 12px; margin-bottom: 20px; border-radius: 10px; border: 1px solid #ddd; box-sizing: border-box; font-size: 16px; }
         .btn-confirm { background: #1a4d2e; color: white; padding: 15px; width: 100%; border: none; border-radius: 30px; font-size: 18px; font-weight: 700; cursor: pointer; }
-        
-        /* ส่วนสแกน */
         #scan-page { display: none; }
-        #video { width: 100%; border-radius: 15px; background: #000; margin-top: 20px; border: 4px solid #1a4d2e; max-width: 400px; }
-        
-        .btn-refresh { background: #28a745; color: white; padding: 12px 25px; border: none; border-radius: 30px; font-size: 16px; margin-top: 15px; cursor: pointer; font-weight: bold; font-family: 'FC Iconic'; }
-        .btn-edit { background: none; border: none; color: #1a4d2e; text-decoration: underline; cursor: pointer; margin-top: 20px; font-size: 14px; font-family: 'FC Iconic'; }
-
-        /* หน้าจอคำแนะนำกรณีจอดำ */
-        #guide-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 9999; }
-        .instruction-box { position: absolute; bottom: 120px; left: 50%; transform: translateX(-50%); width: 85%; background: white; padding: 20px; border-radius: 20px; color: #333; border: 3px solid #1a4d2e; }
+        #video { width: 100%; border-radius: 15px; background: #000; margin-top: 20px; border: 4px solid #1a4d2e; }
+        .btn-refresh { background: #28a745; color: white; padding: 12px 25px; border: none; border-radius: 30px; font-size: 16px; margin-top: 15px; cursor: pointer; }
     </style>
 </head>
 <body>
 
     <div id="setup-page" class="container">
-        <img src="https://cyclezerotohero-rgb.github.io/ScanerQR/CYCLE.png" style="width: 120px; margin-bottom: 10px;">
         <div class="info-card">
             <h2>Cycle อยากรู้จัก!!</h2>
-            <p class="sub-title">โปรดกรอกข้อมูลและองค์กรของท่าน</p>
-            
+            <p style="color:#666;">กรุณากรอกชื่อและเลือกสถานที่</p>
             <label>ชื่อ-นามสกุล</label>
             <input type="text" id="real-name" placeholder="พิมพ์ชื่อของท่านที่นี่">
-            
             <label>องค์กร/สถานที่</label>
             <select id="org-select">
                 <option value="โรงเรียนสารสาสน์วิเทศเชียงใหม่">โรงเรียนสารสาสน์วิเทศเชียงใหม่</option>
             </select>
-            
             <button class="btn-confirm" onclick="saveInfo()">ยืนยันข้อมูล</button>
         </div>
     </div>
 
     <div id="scan-page" class="container">
-        <h3 style="color:#1a4d2e; margin-bottom: 5px;">สแกนบาร์โค้ดเพื่อรับแต้ม</h3>
-        <p id="user-display" style="color:#1a4d2e; font-weight:bold; margin: 0;"></p>
-        
+        <h3 id="user-display" style="color:#1a4d2e;"></h3>
         <video id="video" playsinline></video>
-        
-        <button class="btn-refresh" onclick="location.reload()"> รีเฟรชหน้าสแกน</button>
-        
+        <button class="btn-refresh" onclick="location.reload()">🔄 รีเฟรชหน้าสแกน</button>
         <p id="status" style="margin-top:15px; color:#666;">กรุณาส่องกล้องไปที่บาร์โค้ด</p>
-        
-        <button class="btn-edit" onclick="clearUserData()">แก้ไขชื่อ/องค์กร</button>
-        
-        <div style="margin-top: auto; padding-bottom: 30px;">
-            <img src="https://cyclezerotohero-rgb.github.io/ScanerQR/CYCLE.png" style="width: 100px;">
-        </div>
-    </div>
-
-    <div id="guide-overlay">
-        <div style="margin-top: 150px;">
-            <img src="https://cyclezerotohero-rgb.github.io/ScanerQR/LOGO SORRY.png" style="width: 150px;">
-        </div>
-        <div class="instruction-box">
-            <h2 style="color: #1a4d2e; margin: 0; font-size: 24px;">พบปัญหาจอดำ?</h2>
-            <p>กดปุ่ม <b>"แชร์"</b> หรือ <b>"เข็มทิศ"</b> มุมขวาล่าง<br>แล้วเลือก <b>"เปิดในเบราว์เซอร์"</b></p>
-        </div>
     </div>
 
     <script>
-        // --- ส่วนการตั้งค่า ---
         const myLiffId = "2009856940-tyxcN1rB"; 
         const myScriptUrl = "https://script.google.com/macros/s/AKfycbzon--LEO1cpZVyFFd7QXW4RL2ntQ4YrroequdJu-l_xakZcKs9G_175rQZBvYm-E-nHQ/exec"; 
 
-        let savedRealName = ""; 
-        let savedOrg = "";
-
         async function main() {
-            try {
-                await liff.init({ liffId: myLiffId });
-                if (liff.isInClient()) {
-                    // แนะนำให้เปิดในเบราว์เซอร์ภายนอกเพื่อเสถียรภาพของกล้อง
-                    document.getElementById('guide-overlay').style.display = 'block';
-                }
-                if (!liff.isLoggedIn()) {
-                    liff.login();
-                }
+            await liff.init({ liffId: myLiffId });
+            if (!liff.isLoggedIn()) liff.login();
 
-                // เช็คว่าเคยกรอกชื่อไว้หรือยัง
-                const cachedName = localStorage.getItem('cycle_name');
-                const cachedOrg = localStorage.getItem('cycle_org');
-
-                if (cachedName && cachedOrg) {
-                    savedRealName = cachedName;
-                    savedOrg = cachedOrg;
-                    showScanPage();
-                }
-            } catch (err) {
-                console.error("LIFF Init Error:", err);
+            const cachedName = localStorage.getItem('cycle_name');
+            const cachedOrg = localStorage.getItem('cycle_org');
+            if (cachedName && cachedOrg) {
+                showScanPage(cachedName);
             }
         }
 
-        // ฟังก์ชันบันทึกชื่อลงความจำเครื่อง
         function saveInfo() {
             const name = document.getElementById('real-name').value.trim();
             const org = document.getElementById('org-select').value;
@@ -120,51 +65,37 @@
             
             localStorage.setItem('cycle_name', name);
             localStorage.setItem('cycle_org', org);
-            savedRealName = name;
-            savedOrg = org;
-            showScanPage();
+            showScanPage(name);
         }
 
-        // สลับไปหน้าสแกน
-        function showScanPage() {
+        function showScanPage(name) {
             document.getElementById('setup-page').style.display = 'none';
             document.getElementById('scan-page').style.display = 'block';
-            document.getElementById('user-display').innerText = "สวัสดีคุณ: " + savedRealName;
+            document.getElementById('user-display').innerText = "สวัสดีคุณ: " + name;
             startScanner();
         }
 
-        // ล้างข้อมูลเพื่อกรอกใหม่
-        function clearUserData() {
-            if(confirm("ต้องการเปลี่ยนชื่อผู้ใช้งานใช่หรือไม่?")) {
-                localStorage.removeItem('cycle_name');
-                localStorage.removeItem('cycle_org');
-                location.reload();
-            }
-        }
-
-        // ฟังก์ชันเปิดกล้องสแกน
         async function startScanner() {
             const codeReader = new ZXing.BrowserMultiFormatReader();
             try {
                 const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
                 document.getElementById('video').srcObject = stream;
                 await document.getElementById('video').play();
-                
                 codeReader.decodeFromVideoDevice(null, 'video', (result) => {
                     if (result) {
-                        sendData(result.text); // ส่งข้อมูลเมื่อเจอ Barcode
+                        sendData(result.text);
                         codeReader.reset();
                         stream.getTracks().forEach(t => t.stop());
                     }
                 });
-            } catch (err) {
-                document.getElementById('guide-overlay').style.display = 'block';
-            }
+            } catch (err) { alert("กล้องขัดข้อง กรุณาเปิดในเบราว์เซอร์ปกติ"); }
         }
 
-        // ฟังก์ชันส่งข้อมูลไป Google Sheet
         async function sendData(barcode) {
             const profile = await liff.getProfile();
+            const name = localStorage.getItem('cycle_name');
+            const org = localStorage.getItem('cycle_org');
+            
             document.getElementById('status').innerText = "กำลังบันทึกข้อมูล...";
             
             try {
@@ -172,30 +103,22 @@
                     method: "POST",
                     body: JSON.stringify({
                         userId: profile.userId, 
-                        realName: savedRealName, // ตัวแปรนี้จะไปลงที่คอลัมน์ C (NAME)
-                        organization: savedOrg,  // ตัวแปรนี้จะไปลงที่คอลัมน์ E (WHERE)
+                        userName: name,      // ส่งชื่อไปที่ Apps Script
+                        userLocation: org,   // ส่งสถานที่ไปที่ Apps Script
                         barcode: barcode
                     })
                 });
                 
                 const result = await response.text();
-                const status = result.toUpperCase();
-
-                if (status.includes("SUCCESS")) {
-                    alert("✅ บันทึกสำเร็จ! ขอบคุณครับคุณ " + savedRealName);
-                    liff.closeWindow(); // ปิดหน้าต่าง LIFF ทันที
-                } else if (status.includes("DUPLICATE")) {
-                    alert("❌ ขวดนี้ถูกสแกนไปแล้วครับ! รบกวนสแกนขวดอื่นนะครับ");
+                if (result.toUpperCase().includes("SUCCESS")) {
+                    alert("✅ บันทึกสำเร็จ! ขอบคุณครับคุณ " + name);
+                    liff.closeWindow();
+                } else if (result.toUpperCase().includes("DUPLICATE")) {
+                    alert("❌ ขวดนี้ถูกสแกนไปแล้วครับ!");
                     location.reload();
-                } else {
-                    alert("ข้อความจากระบบ: " + result);
                 }
-            } catch (e) {
-                alert("เกิดข้อผิดพลาดในการเชื่อมต่อฐานข้อมูล");
-                location.reload();
-            }
+            } catch (e) { alert("เชื่อมต่อฐานข้อมูลไม่ได้"); }
         }
-
         main();
     </script>
 </body>
