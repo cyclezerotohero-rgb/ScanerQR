@@ -17,19 +17,18 @@
         input, select { width: 100%; padding: 12px; margin-bottom: 20px; border-radius: 10px; border: 1px solid #ddd; box-sizing: border-box; font-family: 'FC Iconic'; font-size: 16px; }
         .btn-confirm { background: #1a4d2e; color: white; padding: 15px; width: 100%; border: none; border-radius: 30px; font-size: 18px; font-weight: 700; cursor: pointer; }
         
-        /* หน้าสแกน */
         #scan-page { display: none; }
-        #video { width: 100%; border-radius: 15px; background: #000; margin-top: 20px; }
+        #video { width: 100%; border-radius: 15px; background: #000; margin-top: 20px; border: 4px solid #1a4d2e; max-width: 400px; }
         
         /* ปุ่มรีเฟรช */
-        .btn-refresh { background: #28a745; color: white; padding: 10px 20px; border: none; border-radius: 20px; font-size: 16px; margin-top: 15px; cursor: pointer; font-family: 'FC Iconic'; }
+        .btn-refresh { background: #28a745; color: white; padding: 12px 25px; border: none; border-radius: 30px; font-size: 16px; margin-top: 15px; cursor: pointer; font-weight: bold; font-family: 'FC Iconic'; }
         
         #guide-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 9999; }
         .instruction-box { position: absolute; bottom: 120px; left: 50%; transform: translateX(-50%); width: 85%; background: white; padding: 20px; border-radius: 20px; color: #333; border: 3px solid #1a4d2e; }
         .brand-mascot { width: 150px; margin-top: -80px; }
         .arrow-point { position: absolute; bottom: 30px; right: 40px; width: 0; height: 0; border-top: 15px solid transparent; border-bottom: 15px solid transparent; border-left: 20px solid #1a4d2e; transform: rotate(-135deg); animation: bounce 1s infinite alternate; }
         @keyframes bounce { 0% { transform: translate(0,0) rotate(-135deg); } 100% { transform: translate(15px,15px) rotate(-135deg); } }
-        .btn-edit { background: none; border: none; color: #1a4d2e; text-decoration: underline; cursor: pointer; margin-top: 10px; font-size: 14px; }
+        .btn-edit { background: none; border: none; color: #1a4d2e; text-decoration: underline; cursor: pointer; margin-top: 20px; font-size: 14px; font-family: 'FC Iconic'; }
     </style>
 </head>
 <body>
@@ -50,8 +49,9 @@
     </div>
 
     <div id="scan-page" class="container">
-        <h3 style="color:#1a4d2e;">สแกนบาร์โค้ดเพื่อรับแต้ม</h3>
-        <p id="user-display" style="color:#1a4d2e; font-weight:bold;"></p>
+        <h3 style="color:#1a4d2e; margin-bottom: 5px;">สแกนบาร์โค้ดเพื่อรับแต้ม</h3>
+        <p id="user-display" style="color:#1a4d2e; font-weight:bold; margin: 0;"></p>
+        
         <video id="video" playsinline></video>
         
         <button class="btn-refresh" onclick="location.reload()">🔄 รีเฟรชหน้าสแกน</button>
@@ -72,21 +72,27 @@
 
     <script>
         const myLiffId = "2009856940-tyxcN1rB"; 
-        const myScriptUrl = "https://script.google.com/macros/s/AKfycbzon--LEO1cpZVyFFd7QXW4RL2ntQ4YrroequdJu-l_xakZcKs9G_175rQZBvYm-E-nHQ/exec"; // อย่าลืมใส่ URL ของพี่นะครับ
-        let savedRealName = ""; let savedOrg = "";
+        const myScriptUrl = "https://script.google.com/macros/s/AKfycbzon--LEO1cpZVyFFd7QXW4RL2ntQ4YrroequdJu-l_xakZcKs9G_175rQZBvYm-E-nHQ/exec"; // อย่าลืมใส่ URL ใหม่นะครับ
+
+        let savedRealName = ""; 
+        let savedOrg = "";
 
         async function main() {
-            await liff.init({ liffId: myLiffId });
-            if (liff.isInClient()) document.getElementById('guide-overlay').style.display = 'block';
-            if (!liff.isLoggedIn()) liff.login();
+            try {
+                await liff.init({ liffId: myLiffId });
+                if (liff.isInClient()) document.getElementById('guide-overlay').style.display = 'block';
+                if (!liff.isLoggedIn()) liff.login();
 
-            const cachedName = localStorage.getItem('cycle_name');
-            const cachedOrg = localStorage.getItem('cycle_org');
-            if (cachedName && cachedOrg) {
-                savedRealName = cachedName;
-                savedOrg = cachedOrg;
-                showScanPage();
-            }
+                // ดึงข้อมูลจากความจำเครื่อง
+                const cachedName = localStorage.getItem('cycle_name');
+                const cachedOrg = localStorage.getItem('cycle_org');
+
+                if (cachedName && cachedOrg) {
+                    savedRealName = cachedName;
+                    savedOrg = cachedOrg;
+                    showScanPage();
+                }
+            } catch (err) { console.error(err); }
         }
 
         function saveInfo() {
@@ -109,9 +115,11 @@
         }
 
         function clearUserData() {
-            localStorage.removeItem('cycle_name');
-            localStorage.removeItem('cycle_org');
-            location.reload();
+            if(confirm("ต้องการเปลี่ยนชื่อผู้ใช้งานใช่หรือไม่?")) {
+                localStorage.removeItem('cycle_name');
+                localStorage.removeItem('cycle_org');
+                location.reload();
+            }
         }
 
         async function startScanner() {
@@ -138,24 +146,30 @@
                 const response = await fetch(myScriptUrl, {
                     method: "POST",
                     body: JSON.stringify({
-                        userId: profile.userId, realName: savedRealName,
-                        organization: savedOrg, barcode: barcode
+                        userId: profile.userId, 
+                        realName: savedRealName, // ส่งชื่อที่กรอกไป
+                        organization: savedOrg, 
+                        barcode: barcode
                     })
                 });
+                
                 const result = await response.text();
                 
-                // --- แก้ไขตรงนี้ให้ตรวจสอบ SUCCESS อย่างถูกต้อง ---
-                if (result.includes("SUCCESS")) {
-                    alert("✅ บันทึกสำเร็จ! ขอบคุณที่ร่วมช่วยโลกกับ Cycle นะครับ");
+                // ตรวจสอบสถานะจาก Apps Script (แปลงเป็นตัวพิมพ์ใหญ่เพื่อความชัวร์)
+                const status = result.toUpperCase();
+
+                if (status.includes("SUCCESS")) {
+                    alert("✅ บันทึกสำเร็จ! ขอบคุณที่ช่วย Cycle นะครับ");
                     liff.closeWindow();
-                } else if (result.includes("DUPLICATE_BARCODE")) {
-                    alert("❌ ขวดนี้ถูกสแกนไปแล้วครับ!");
+                } else if (status.includes("DUPLICATE")) {
+                    alert("❌ ขวดนี้ถูกสแกนไปแล้วครับ! รบกวนใช้ขวดใหม่นะครับ");
                     location.reload();
                 } else {
-                    alert("เกิดข้อผิดพลาดจากระบบ: " + result);
+                    alert("แจ้งเตือนจากระบบ: " + result);
                 }
             } catch (e) {
                 alert("เชื่อมต่อฐานข้อมูลไม่ได้ กรุณาลองใหม่อีกครั้ง");
+                location.reload();
             }
         }
         main();
