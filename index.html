@@ -3,181 +3,120 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Barcode Scanner</title>
+    <title>Cycle Smart Bin</title>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=FC+Iconic:wght@700&display=swap">
     <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
     <script src="https://unpkg.com/@zxing/library@latest"></script>
     <style>
-        body {
-            text-align: center;
-            font-family: 'FC Iconic', sans-serif;
-            background-color: #f8f9fa;
-            margin: 0;
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
-        }
-        h3 {
-            font-weight: 700;
-            font-size: 26px;
-            margin-top: 40px;
-            color: #1a4d2e;
-        }
-        
-        /* หน้าจอแนะนำแบบชี้มุมขวาล่าง */
-        #guide-overlay {
-            display: none;
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.85);
-            color: white;
-            z-index: 9999;
-            text-align: center;
-        }
-        
-        /* กล่องข้อความแนะนำ */
-        .instruction-box {
-            position: absolute;
-            bottom: 150px; 
-            left: 50%;
-            transform: translateX(-50%);
-            width: 80%;
-            background: #333;
-            padding: 20px;
-            border-radius: 15px;
-            border: 2px solid #ffcf00;
-        }
-        
-        /* ลูกศรใหญ่และชี้มุมชัดเจน */
-        .arrow-down {
-            position: absolute;
-            bottom: 30px;
-            right: 40px;
-            font-size: 80px;
-            color: #295B48;
-            animation: bounce-point 1s infinite alternate ease-in-out;
-        }
-        
-        @keyframes bounce-point {
-            0% { transform: translate(0, 0) rotate(0deg); }
-            100% { transform: translate(15px, 15px) rotate(-15deg); }
-        }
-        
-        .btn-refresh {
-            padding: 8px 25px;
-            border-radius: 25px;
-            border: none;
-            background: #1a4d2e;
-            color: white;
-            font-family: 'FC Iconic', sans-serif;
-            font-weight: 700;
-            font-size: 16px;
-            cursor: pointer;
-            display: inline-block;
-            margin: 10px auto;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-            transition: 0.3s;
-        }
-        .btn-refresh:active {
-            transform: scale(0.95);
-        }
-        .logo-container {
-            margin-top: auto; 
-            padding-bottom: 40px;
-        }
-        .brand-logo {
-            width: 180px;
-            height: auto;
-            opacity: 0.9;
-        }
+        body { text-align: center; font-family: 'FC Iconic', sans-serif; background-color: #f8f9fa; margin: 0; }
+        .container { padding: 30px 20px; display: flex; flex-direction: column; min-height: 100vh; align-items: center; }
+        .info-card { background: white; padding: 30px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 90%; max-width: 350px; border: 2px solid #1a4d2e; }
+        h2 { color: #1a4d2e; margin: 0; font-size: 28px; }
+        p.sub-title { color: #666; font-size: 14px; margin-top: 5px; margin-bottom: 25px; }
+        label { display: block; text-align: left; margin-bottom: 5px; color: #1a4d2e; font-weight: bold; }
+        input, select { width: 100%; padding: 12px; margin-bottom: 20px; border-radius: 10px; border: 1px solid #ddd; box-sizing: border-box; font-family: 'FC Iconic'; font-size: 16px; }
+        .btn-confirm { background: #1a4d2e; color: white; padding: 15px; width: 100%; border: none; border-radius: 30px; font-size: 18px; font-weight: 700; cursor: pointer; }
+        #scan-page { display: none; }
+        #video { width: 100%; border-radius: 15px; background: #000; margin-top: 20px; }
+        #guide-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 9999; }
+        .instruction-box { position: absolute; bottom: 120px; left: 50%; transform: translateX(-50%); width: 85%; background: white; padding: 20px; border-radius: 20px; color: #333; border: 3px solid #1a4d2e; }
+        .brand-mascot { width: 150px; margin-top: -80px; }
+        .arrow-point { position: absolute; bottom: 30px; right: 40px; width: 0; height: 0; border-top: 15px solid transparent; border-bottom: 15px solid transparent; border-left: 20px solid #1a4d2e; transform: rotate(-135deg); animation: bounce 1s infinite alternate; }
+        @keyframes bounce { 0% { transform: translate(0,0) rotate(-135deg); } 100% { transform: translate(15px,15px) rotate(-135deg); } }
     </style>
 </head>
 <body>
-    
-    <div id="guide-overlay">
-        <div class="instruction-box">
-            <h2 style="color: #ffcf00; margin-top: 0;">พบปัญหาจอดำ?</h2>
-            <p>กรุณากดที่ปุ่ม <b>"3จุด"</b> หรือ <b>"เข็มทิศ"</b><br>ที่มุมขวาล่าง</p>
-            <p>แล้วเลือก <b>"เปิดในเบราว์เซอร์"</b></p>
+
+    <div id="setup-page" class="container">
+        <img src="CYCLE.png" style="width: 120px; margin-bottom: 20px;">
+        <div class="info-card">
+            <h2>Cycle อยากรู้จัก!!</h2>
+            <p class="sub-title">โปรดกรอกข้อมูลและองค์กรของท่าน</p>
+            <label>ชื่อ-นามสกุล</label>
+            <input type="text" id="real-name" placeholder="พิมพ์ชื่อของท่านที่นี่">
+            <label>องค์กร/สถานที่</label>
+            <select id="org-select">
+                <option value="โรงเรียนสารสาสน์วิเทศเชียงใหม่">โรงเรียนสารสาสน์วิเทศเชียงใหม่</option>
+            </select>
+            <button class="btn-confirm" onclick="saveInfo()">ยืนยันข้อมูล</button>
         </div>
-        <div class="arrow-down">↘️</div>
     </div>
 
-    <h3>สแกนบาร์โค้ดที่ขวดน้ำ</h3>
-    
-    <div style="width: 90%; max-width: 400px; margin: 20px auto; position: relative;">
-        <video id="video" playsinline style="width: 100%; border-radius: 15px; background: #000;"></video>
-        <div style="position: absolute; top: 50%; left: 10%; right: 10%; border-top: 2px solid #ff4444; opacity: 0.7;"></div>
-    </div>
-    
-    <p id="status" style="color: #666; padding: 0 20px;">สแกนได้เลย!!...</p>
-    
-    <div>
-        <button class="btn-refresh" onclick="location.reload()">รีเฟรชหน้าจอ</button>
+    <div id="scan-page" class="container">
+        <h3 style="color:#1a4d2e;">สแกนบาร์โค้ดเพื่อรับแต้ม</h3>
+        <video id="video" playsinline></video>
+        <p id="status" style="margin-top:15px; color:#666;">กรุณาส่องกล้องไปที่บาร์โค้ด</p>
+        <div style="margin-top: auto; padding-bottom: 30px;"><img src="CYCLE.png" style="width: 100px;"></div>
     </div>
 
-    <div class="logo-container">
-        <img src="https://cyclezerotohero-rgb.github.io/ScanerQR/CYCLE.png" class="brand-logo" alt="CYCLE Logo">
+    <div id="guide-overlay">
+        <div style="margin-top: 150px;"><img src="LOGO SORRY.png" class="brand-mascot"></div>
+        <div class="instruction-box">
+            <h2 style="color: #1a4d2e; margin: 0; font-size: 24px;">พบปัญหาจอดำ?</h2>
+            <p>กดปุ่ม <b>"แชร์"</b> หรือ <b>"เข็มทิศ"</b> มุมขวาล่าง<br>แล้วเลือก <b>"เปิดในเบราว์เซอร์"</b></p>
+        </div>
+        <div class="arrow-point"></div>
     </div>
 
     <script>
-        // อย่าลืมใส่ ID และ URL ของพี่นะคั้บ
         const myLiffId = "2009856940-tyxcN1rB"; 
-        const myScriptUrl = "https://script.google.com/macros/s/AKfycbzon--LEO1cpZVyFFd7QXW4RL2ntQ4YrroH9S0v0hO2r666R_XyU7lPqI2Y0qY5T_8/exec"; 
+        const myScriptUrl = "https://script.google.com/macros/s/AKfycbzon--LEO1cpZVyFFd7QXW4RL2ntQ4YrroequdJu-l_xakZcKs9G_175rQZBvYm-E-nHQ/exec"; 
+        let savedRealName = ""; let savedOrg = "";
 
         async function main() {
-            try {
-                await liff.init({ liffId: myLiffId });
-                
-                // เช็คว่าเปิดในแอป LINE หรือไม่
-                if (liff.isInClient()) {
-                    document.getElementById('guide-overlay').style.display = 'block';
-                }
+            await liff.init({ liffId: myLiffId });
+            if (liff.isInClient()) document.getElementById('guide-overlay').style.display = 'block';
+            if (!liff.isLoggedIn()) liff.login();
+        }
 
-                if (!liff.isLoggedIn()) {
-                    liff.login();
-                } else {
-                    startScanner();
-                }
-            } catch (err) {
-                document.getElementById('status').innerText = "LIFF Error: " + err.message;
+        function saveInfo() {
+            savedRealName = document.getElementById('real-name').value;
+            savedOrg = document.getElementById('org-select').value;
+            if(!savedRealName) return alert("กรุณากรอกชื่อก่อนนะครับ");
+            
+            if(confirm("บันทึกข้อมูลเรียบร้อยแล้ว! เริ่มสแกนเลยไหมครับ?")) {
+                document.getElementById('setup-page').style.display = 'none';
+                document.getElementById('scan-page').style.display = 'block';
+                startScanner();
             }
         }
 
         async function startScanner() {
             const codeReader = new ZXing.BrowserMultiFormatReader();
-            const videoElt = document.getElementById('video');
             try {
                 const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
-                videoElt.srcObject = stream;
-                await videoElt.play();
+                document.getElementById('video').srcObject = stream;
+                await document.getElementById('video').play();
                 codeReader.decodeFromVideoDevice(null, 'video', (result) => {
                     if (result) {
                         sendData(result.text);
                         codeReader.reset();
-                        stream.getTracks().forEach(track => track.stop());
+                        stream.getTracks().forEach(t => t.stop());
                     }
                 });
-            } catch (error) {
-                // ถ้ากล้องเปิดไม่ได้ ก็จะโชว์ Overlay ชี้เป้า
-                document.getElementById('guide-overlay').style.display = 'block';
-            }
+            } catch (err) { document.getElementById('guide-overlay').style.display = 'block'; }
         }
 
         async function sendData(barcode) {
             const profile = await liff.getProfile();
-            fetch(myScriptUrl, {
+            document.getElementById('status').innerText = "กำลังตรวจสอบบาร์โค้ด...";
+            
+            const response = await fetch(myScriptUrl, {
                 method: "POST",
-                mode: "no-cors", 
                 body: JSON.stringify({
-                    userId: profile.userId,
-                    userName: profile.displayName,
+                    userId: profile.userId, userName: profile.displayName,
+                    realName: savedRealName, organization: savedOrg,
                     barcode: barcode
                 })
-            }).then(() => {
-                alert("บันทึกข้อมูลเรียบร้อย!");
-                liff.closeWindow();
             });
+            const result = await response.text();
+            if (result === "DUPLICATE_BARCODE") {
+                alert("❌ ขวดนี้ถูกสแกนไปแล้ว! ใช้ซ้ำไม่ได้ครับ");
+                location.reload();
+            } else {
+                alert("✅ บันทึกสำเร็จ! ขอบคุณที่ช่วย Cycle นะครับ");
+                liff.closeWindow();
+            }
         }
         main();
     </script>
