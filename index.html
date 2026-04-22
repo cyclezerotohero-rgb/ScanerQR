@@ -16,8 +16,14 @@
         label { display: block; text-align: left; margin-bottom: 5px; color: #1a4d2e; font-weight: bold; }
         input, select { width: 100%; padding: 12px; margin-bottom: 20px; border-radius: 10px; border: 1px solid #ddd; box-sizing: border-box; font-family: 'FC Iconic'; font-size: 16px; }
         .btn-confirm { background: #1a4d2e; color: white; padding: 15px; width: 100%; border: none; border-radius: 30px; font-size: 18px; font-weight: 700; cursor: pointer; }
+        
+        /* หน้าสแกน */
         #scan-page { display: none; }
         #video { width: 100%; border-radius: 15px; background: #000; margin-top: 20px; }
+        
+        /* ปุ่มรีเฟรช */
+        .btn-refresh { background: #28a745; color: white; padding: 10px 20px; border: none; border-radius: 20px; font-size: 16px; margin-top: 15px; cursor: pointer; font-family: 'FC Iconic'; }
+        
         #guide-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 9999; }
         .instruction-box { position: absolute; bottom: 120px; left: 50%; transform: translateX(-50%); width: 85%; background: white; padding: 20px; border-radius: 20px; color: #333; border: 3px solid #1a4d2e; }
         .brand-mascot { width: 150px; margin-top: -80px; }
@@ -47,6 +53,9 @@
         <h3 style="color:#1a4d2e;">สแกนบาร์โค้ดเพื่อรับแต้ม</h3>
         <p id="user-display" style="color:#1a4d2e; font-weight:bold;"></p>
         <video id="video" playsinline></video>
+        
+        <button class="btn-refresh" onclick="location.reload()">🔄 รีเฟรชหน้าสแกน</button>
+        
         <p id="status" style="margin-top:15px; color:#666;">กรุณาส่องกล้องไปที่บาร์โค้ด</p>
         <button class="btn-edit" onclick="clearUserData()">แก้ไขชื่อ/องค์กร</button>
         <div style="margin-top: auto; padding-bottom: 30px;"><img src="https://cyclezerotohero-rgb.github.io/ScanerQR/CYCLE.png" style="width: 100px;"></div>
@@ -63,7 +72,7 @@
 
     <script>
         const myLiffId = "2009856940-tyxcN1rB"; 
-        const myScriptUrl = "https://script.google.com/macros/s/AKfycbzon--LEO1cpZVyFFd7QXW4RL2ntQ4YrroequdJu-l_xakZcKs9G_175rQZBvYm-E-nHQ/exec"; 
+        const myScriptUrl = "https://script.google.com/macros/s/AKfycbwc8G997_C7B_U_Z0C7S_Ym6H1U7S_Z8X8X8X8/exec"; // อย่าลืมใส่ URL ของพี่นะครับ
         let savedRealName = ""; let savedOrg = "";
 
         async function main() {
@@ -71,7 +80,6 @@
             if (liff.isInClient()) document.getElementById('guide-overlay').style.display = 'block';
             if (!liff.isLoggedIn()) liff.login();
 
-            // เช็คว่าเคยเซฟชื่อไว้ไหม
             const cachedName = localStorage.getItem('cycle_name');
             const cachedOrg = localStorage.getItem('cycle_org');
             if (cachedName && cachedOrg) {
@@ -125,20 +133,29 @@
         async function sendData(barcode) {
             const profile = await liff.getProfile();
             document.getElementById('status').innerText = "กำลังตรวจสอบบาร์โค้ด...";
-            const response = await fetch(myScriptUrl, {
-                method: "POST",
-                body: JSON.stringify({
-                    userId: profile.userId, realName: savedRealName,
-                    organization: savedOrg, barcode: barcode
-                })
-            });
-            const result = await response.text();
-            if (result === "DUPLICATE_BARCODE") {
-                alert("❌ ขวดนี้ถูกสแกนไปแล้วครับ!");
-                location.reload();
-            } else {
-                alert("✅ บันทึกสำเร็จ! ขอบคุณครับ");
-                liff.closeWindow();
+            
+            try {
+                const response = await fetch(myScriptUrl, {
+                    method: "POST",
+                    body: JSON.stringify({
+                        userId: profile.userId, realName: savedRealName,
+                        organization: savedOrg, barcode: barcode
+                    })
+                });
+                const result = await response.text();
+                
+                // --- แก้ไขตรงนี้ให้ตรวจสอบ SUCCESS อย่างถูกต้อง ---
+                if (result.includes("SUCCESS")) {
+                    alert("✅ บันทึกสำเร็จ! ขอบคุณที่ร่วมช่วยโลกกับ Cycle นะครับ");
+                    liff.closeWindow();
+                } else if (result.includes("DUPLICATE_BARCODE")) {
+                    alert("❌ ขวดนี้ถูกสแกนไปแล้วครับ!");
+                    location.reload();
+                } else {
+                    alert("เกิดข้อผิดพลาดจากระบบ: " + result);
+                }
+            } catch (e) {
+                alert("เชื่อมต่อฐานข้อมูลไม่ได้ กรุณาลองใหม่อีกครั้ง");
             }
         }
         main();
