@@ -8,73 +8,116 @@
     <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
     <script src="https://unpkg.com/@zxing/library@latest"></script>
     <style>
-        body { text-align: center; font-family: 'FC Iconic', sans-serif; background-color: #f8f9fa; margin: 0; }
+        body { text-align: center; font-family: 'FC Iconic', sans-serif; background-color: #f8f9fa; margin: 0; padding: 0; }
         .container { padding: 30px 20px; display: flex; flex-direction: column; min-height: 100vh; align-items: center; }
-        .info-card { background: white; padding: 30px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 90%; max-width: 350px; border: 2px solid #1a4d2e; }
+        
+        /* สไตล์กล่องข้อความกรอกข้อมูล */
+        .info-card { background: white; padding: 30px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 90%; max-width: 350px; border: 2px solid #1a4d2e; margin-top: 20px; }
         h2 { color: #1a4d2e; margin: 0; font-size: 28px; }
         p.sub-title { color: #666; font-size: 14px; margin-top: 5px; margin-bottom: 25px; }
+        
         label { display: block; text-align: left; margin-bottom: 5px; color: #1a4d2e; font-weight: bold; }
         input, select { width: 100%; padding: 12px; margin-bottom: 20px; border-radius: 10px; border: 1px solid #ddd; box-sizing: border-box; font-family: 'FC Iconic'; font-size: 16px; }
-        .btn-confirm { background: #1a4d2e; color: white; padding: 15px; width: 100%; border: none; border-radius: 30px; font-size: 18px; font-weight: 700; cursor: pointer; }
+        
+        .btn-confirm { background: #1a4d2e; color: white; padding: 15px; width: 100%; border: none; border-radius: 30px; font-size: 18px; font-weight: 700; cursor: pointer; transition: 0.3s; }
+        .btn-confirm:active { transform: scale(0.95); }
+
+        /* หน้าสแกน */
         #scan-page { display: none; }
-        #video { width: 100%; border-radius: 15px; background: #000; margin-top: 20px; }
+        #video { width: 100%; border-radius: 15px; background: #000; margin-top: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
+
+        /* Overlay สำหรับคนเปิดใน LINE (จอดำ) */
         #guide-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 9999; }
         .instruction-box { position: absolute; bottom: 120px; left: 50%; transform: translateX(-50%); width: 85%; background: white; padding: 20px; border-radius: 20px; color: #333; border: 3px solid #1a4d2e; }
         .brand-mascot { width: 150px; margin-top: -80px; }
-        .arrow-point { position: absolute; bottom: 30px; right: 40px; width: 0; height: 0; border-top: 15px solid transparent; border-bottom: 15px solid transparent; border-left: 20px solid #1a4d2e; transform: rotate(-135deg); animation: bounce 1s infinite alternate; }
+        
+        /* ลูกศร CSS สีเดียวกับแบรนด์ */
+        .arrow-point { 
+            position: absolute; bottom: 30px; right: 40px; width: 0; height: 0; 
+            border-top: 15px solid transparent; border-bottom: 15px solid transparent; 
+            border-left: 20px solid #1a4d2e; /* สีเขียวแบรนด์ */
+            transform: rotate(-135deg); 
+            animation: bounce 1s infinite alternate ease-in-out; 
+        }
         @keyframes bounce { 0% { transform: translate(0,0) rotate(-135deg); } 100% { transform: translate(15px,15px) rotate(-135deg); } }
     </style>
 </head>
 <body>
 
     <div id="setup-page" class="container">
-        <img src="CYCLE.png" style="width: 120px; margin-bottom: 20px;">
+        <img src="https://cyclezerotohero-rgb.github.io/ScanerQR/CYCLE.png" style="width: 120px; margin-bottom: 10px;">
         <div class="info-card">
             <h2>Cycle อยากรู้จัก!!</h2>
             <p class="sub-title">โปรดกรอกข้อมูลและองค์กรของท่าน</p>
+            
             <label>ชื่อ-นามสกุล</label>
             <input type="text" id="real-name" placeholder="พิมพ์ชื่อของท่านที่นี่">
+            
             <label>องค์กร/สถานที่</label>
             <select id="org-select">
                 <option value="โรงเรียนสารสาสน์วิเทศเชียงใหม่">โรงเรียนสารสาสน์วิเทศเชียงใหม่</option>
             </select>
+            
             <button class="btn-confirm" onclick="saveInfo()">ยืนยันข้อมูล</button>
         </div>
     </div>
 
     <div id="scan-page" class="container">
-        <h3 style="color:#1a4d2e;">สแกนบาร์โค้ดเพื่อรับแต้ม</h3>
-        <video id="video" playsinline></video>
+        <h3 style="color:#1a4d2e; font-size: 24px;">สแกนบาร์โค้ดเพื่อรับแต้ม</h3>
+        <div style="width: 100%; max-width: 400px; position: relative;">
+            <video id="video" playsinline></video>
+            <div style="position: absolute; top: 50%; left: 10%; right: 10%; border-top: 2px solid red; opacity: 0.5;"></div>
+        </div>
         <p id="status" style="margin-top:15px; color:#666;">กรุณาส่องกล้องไปที่บาร์โค้ด</p>
-        <div style="margin-top: auto; padding-bottom: 30px;"><img src="CYCLE.png" style="width: 100px;"></div>
+        
+        <div style="margin-top: auto; padding-bottom: 30px;">
+            <img src="https://cyclezerotohero-rgb.github.io/ScanerQR/CYCLE.png" style="width: 120px;">
+        </div>
     </div>
 
     <div id="guide-overlay">
-        <div style="margin-top: 150px;"><img src="LOGO SORRY.png" class="brand-mascot"></div>
+        <div style="margin-top: 150px;">
+            <img src="https://cyclezerotohero-rgb.github.io/ScanerQR/LOGO SORRY.png" class="brand-mascot" alt="LOGO SORRY">
+        </div>
         <div class="instruction-box">
             <h2 style="color: #1a4d2e; margin: 0; font-size: 24px;">พบปัญหาจอดำ?</h2>
-            <p>กดปุ่ม <b>"แชร์"</b> หรือ <b>"เข็มทิศ"</b> มุมขวาล่าง<br>แล้วเลือก <b>"เปิดในเบราว์เซอร์"</b></p>
+            <p>กรุณากดที่ปุ่ม <b>"แชร์"</b> หรือ <b>"เข็มทิศ"</b> มุมขวาล่าง<br>แล้วเลือก <b>"เปิดในเบราว์เซอร์"</b></p>
         </div>
         <div class="arrow-point"></div>
     </div>
 
     <script>
+        // --- ส่วนที่พี่ต้องตรวจสอบ ---
         const myLiffId = "2009856940-tyxcN1rB"; 
         const myScriptUrl = "https://script.google.com/macros/s/AKfycbzon--LEO1cpZVyFFd7QXW4RL2ntQ4YrroequdJu-l_xakZcKs9G_175rQZBvYm-E-nHQ/exec"; 
-        let savedRealName = ""; let savedOrg = "";
+
+        let savedRealName = "";
+        let savedOrg = "";
 
         async function main() {
-            await liff.init({ liffId: myLiffId });
-            if (liff.isInClient()) document.getElementById('guide-overlay').style.display = 'block';
-            if (!liff.isLoggedIn()) liff.login();
+            try {
+                await liff.init({ liffId: myLiffId });
+                if (liff.isInClient()) {
+                    document.getElementById('guide-overlay').style.display = 'block';
+                }
+                if (!liff.isLoggedIn()) {
+                    liff.login();
+                }
+            } catch (err) {
+                console.error("LIFF Init Error", err);
+            }
         }
 
         function saveInfo() {
-            savedRealName = document.getElementById('real-name').value;
+            savedRealName = document.getElementById('real-name').value.trim();
             savedOrg = document.getElementById('org-select').value;
-            if(!savedRealName) return alert("กรุณากรอกชื่อก่อนนะครับ");
             
-            if(confirm("บันทึกข้อมูลเรียบร้อยแล้ว! เริ่มสแกนเลยไหมครับ?")) {
+            if(!savedRealName) {
+                alert("กรุณากรอกชื่อก่อนนะครับ");
+                return;
+            }
+            
+            if(confirm("บันทึกข้อมูลเรียบร้อยแล้ว! ต้องการเริ่มสแกนเลยหรือไม่?")) {
                 document.getElementById('setup-page').style.display = 'none';
                 document.getElementById('scan-page').style.display = 'block';
                 startScanner();
@@ -83,10 +126,12 @@
 
         async function startScanner() {
             const codeReader = new ZXing.BrowserMultiFormatReader();
+            const videoElt = document.getElementById('video');
             try {
                 const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
-                document.getElementById('video').srcObject = stream;
-                await document.getElementById('video').play();
+                videoElt.srcObject = stream;
+                await videoElt.play();
+                
                 codeReader.decodeFromVideoDevice(null, 'video', (result) => {
                     if (result) {
                         sendData(result.text);
@@ -94,30 +139,43 @@
                         stream.getTracks().forEach(t => t.stop());
                     }
                 });
-            } catch (err) { document.getElementById('guide-overlay').style.display = 'block'; }
+            } catch (err) {
+                document.getElementById('guide-overlay').style.display = 'block';
+            }
         }
 
         async function sendData(barcode) {
             const profile = await liff.getProfile();
-            document.getElementById('status').innerText = "กำลังตรวจสอบบาร์โค้ด...";
-            
-            const response = await fetch(myScriptUrl, {
-                method: "POST",
-                body: JSON.stringify({
-                    userId: profile.userId, userName: profile.displayName,
-                    realName: savedRealName, organization: savedOrg,
-                    barcode: barcode
-                })
-            });
-            const result = await response.text();
-            if (result === "DUPLICATE_BARCODE") {
-                alert("❌ ขวดนี้ถูกสแกนไปแล้ว! ใช้ซ้ำไม่ได้ครับ");
-                location.reload();
-            } else {
-                alert("✅ บันทึกสำเร็จ! ขอบคุณที่ช่วย Cycle นะครับ");
-                liff.closeWindow();
+            const statusElt = document.getElementById('status');
+            statusElt.innerText = "กำลังตรวจสอบบาร์โค้ด...";
+
+            try {
+                const response = await fetch(myScriptUrl, {
+                    method: "POST",
+                    body: JSON.stringify({
+                        userId: profile.userId,
+                        realName: savedRealName,
+                        organization: savedOrg,
+                        barcode: barcode
+                    })
+                });
+                
+                const result = await response.text();
+
+                if (result === "DUPLICATE_BARCODE") {
+                    alert("❌ ขวดนี้ถูกสแกนไปแล้ว! รบกวนเปลี่ยนขวดใหม่นะครับ");
+                    location.reload(); 
+                } else if (result === "SUCCESS") {
+                    alert("✅ บันทึกสำเร็จ! ขอบคุณที่ช่วย Cycle เก็บขวดนะครับ");
+                    liff.closeWindow(); 
+                } else {
+                    alert("เกิดข้อผิดพลาด: " + result);
+                }
+            } catch (err) {
+                alert("เชื่อมต่อฐานข้อมูลไม่ได้ กรุณาลองใหม่อีกครั้ง");
             }
         }
+
         main();
     </script>
 </body>
