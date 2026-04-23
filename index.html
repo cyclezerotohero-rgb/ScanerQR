@@ -9,17 +9,17 @@
     <script src="https://unpkg.com/@zxing/library@latest"></script>
     <style>
         body { text-align: center; font-family: 'FC Iconic', sans-serif; background-color: #f8f9fa; margin: 0; }
-        .container { padding: 30px 20px; display: flex; flex-direction: column; min-height: 100vh; align-items: center; }
-        .info-card { background: white; padding: 30px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 90%; max-width: 350px; border: 2px solid #1a4d2e; margin-top: 20px; }
-        h2 { color: #1a4d2e; margin: 0; font-size: 28px; }
+        .container { padding: 30px 20px; display: flex; flex-direction: column; min-height: 100vh; align-items: center; justify-content: center; }
+        .info-card { background: white; padding: 30px; border-radius: 25px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 90%; max-width: 350px; border: 2px solid #1a4d2e; }
+        h2 { color: #1a4d2e; margin: 10px 0; font-size: 28px; }
         input, select { width: 100%; padding: 12px; margin-bottom: 20px; border-radius: 10px; border: 1px solid #ddd; box-sizing: border-box; font-size: 16px; font-family: 'FC Iconic'; }
-        .btn-confirm { background: #1a4d2e; color: white; padding: 15px; width: 100%; border: none; border-radius: 30px; font-size: 18px; font-weight: 700; cursor: pointer; }
+        .btn-confirm { background: #1a4d2e; color: white; padding: 15px; width: 100%; border: none; border-radius: 30px; font-size: 18px; font-weight: 700; cursor: pointer; text-decoration: none; display: block; }
         
-        #scan-page { display: none; }
+        #scan-page, #success-page { display: none; }
         #video { width: 100%; border-radius: 15px; background: #000; margin-top: 20px; border: 4px solid #1a4d2e; max-width: 400px; }
-        .btn-refresh { background: #28a745; color: white; padding: 12px 25px; border: none; border-radius: 30px; font-size: 16px; margin-top: 15px; cursor: pointer; font-family: 'FC Iconic'; }
+        .status-text { margin-top:15px; color:#1a4d2e; font-weight:bold; }
 
-        /* Guide จอดำ + ลูกศรเด้ง */
+        /* Guide จอดำ */
         #guide-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 9999; color: white; }
         .guide-text { position: absolute; bottom: 120px; right: 20px; left: 20px; background: white; color: #333; padding: 25px; border-radius: 20px; border: 3px solid #1a4d2e; }
         .arrow-point { position: absolute; bottom: 30px; right: 30px; font-size: 60px; animation: bounce 1s infinite; }
@@ -45,9 +45,17 @@
         <h3 style="color:#1a4d2e;">สแกนบาร์โค้ดเพื่อรับแต้ม</h3>
         <p id="user-display" style="color:#1a4d2e; font-weight:bold;"></p>
         <video id="video" playsinline></video>
-        <button class="btn-refresh" onclick="location.reload()">  รีเฟรชหน้าสแกน</button>
-        <p id="status" style="margin-top:15px; color:#1a4d2e; font-weight:bold;">[ ส่องกล้องไปที่บาร์โค้ด ]</p>
+        <p id="status" class="status-text">[ ส่องกล้องไปที่บาร์โค้ด ]</p>
         <button onclick="localStorage.clear(); location.reload();" style="background:none; border:none; color:gray; text-decoration:underline; margin-top:20px; font-family:'FC Iconic';">แก้ไขชื่อ/องค์กร</button>
+    </div>
+
+    <div id="success-page" class="container">
+        <div class="info-card">
+            <img src="https://cyclezerotohero-rgb.github.io/ScanerQR/image_1.png" style="width: 280px; margin-bottom: 15px;">
+            <h2 style="color: #1a4d2e;">Cybooo ได้รับขวดแล้ว</h2>
+            <p style="color: #666; margin-bottom: 25px;">ขอบคุณที่ช่วยดูแลโลกกับเรานะครับ</p>
+            <a href="https://u.lin.ee/YHZFi0j" class="btn-confirm">กดรับแต้มผ่าน LINE</a>
+        </div>
     </div>
 
     <div id="guide-overlay">
@@ -60,13 +68,11 @@
 
     <script>
         const myLiffId = "2009856940-tyxcN1rB"; 
-        const myScriptUrl = "https://script.google.com/macros/s/AKfycbx5sK_I6bcpMX2DghZ-l5DjY1-sc9HtRRROXVUiIgoA84lneTqi6t-2KPkNt8eGHpIfOw/exec"; 
+        const myScriptUrl = "https://script.google.com/macros/s/AKfycbyTjRZRUoEPSxCmJwJ_i4D-BxhKXSkCCNXA7vvLACjCLNKxg0KfF1w7qwEtYTmngQ8PKg/exec"; 
 
         async function main() {
             await liff.init({ liffId: myLiffId });
             if (!liff.isLoggedIn()) liff.login();
-            
-            // ตรวจสอบความจำเครื่อง
             const n = localStorage.getItem('cycle_v1_name');
             const o = localStorage.getItem('cycle_v1_org');
             if (n && o) showScanPage(n);
@@ -97,10 +103,8 @@
                 
                 codeReader.decodeFromVideoDevice(null, 'video', (result) => {
                     if (result) {
-                        // เปลี่ยนสถานะทันทีเมื่อสแกนติด
                         document.getElementById('status').innerText = "⏳ กำลังตรวจสอบรหัส...";
                         document.getElementById('status').style.color = "orange";
-                        
                         sendData(result.text);
                         codeReader.reset();
                         stream.getTracks().forEach(t => t.stop());
@@ -129,9 +133,9 @@
                 const res = await response.text();
 
                 if (res.toUpperCase().includes("SUCCESS")) {
-                    alert("✅ บันทึกสำเร็จ! กำลังพาไปรับแต้มครับ");
-                    // วาร์ปไปที่บัตรสะสมแต้ม
-                    window.location.href = "https://u.lin.ee/YHZFi0j"; 
+                    // วาร์ปมาหน้า Success พร้อมรูปโลโก้เดิมๆ
+                    document.getElementById('scan-page').style.display = 'none';
+                    document.getElementById('success-page').style.display = 'flex';
                 } else if (res.toUpperCase().includes("DUPLICATE")) {
                     alert("❌ บาร์โค้ดนี้ถูกสแกนไปแล้วครับ!");
                     location.reload();
