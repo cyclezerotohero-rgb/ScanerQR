@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cycle Point Program - Home</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=FC+Iconic:wght@400;700&display=swap">
+    <style>
+        body { margin: 0; padding: 0; font-family: sans-serif; background-color: #f8f9fa; }
+        .top-nav {
+            background-color: #ffffff;
+            height: 70px;
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            position: fixed;
+            top: 0; width: 100%; z-index: 1000; box-sizing: border-box;
+        }
+        .nav-logo { height: 45px; cursor: pointer; margin-right: 20px; }
+        .nav-links { display: flex; gap: 15px; }
+        .nav-item {
+            text-decoration: none;
+            color: #285B48;
+            font-size: 16px;
+            font-weight: bold;
+            padding: 8px 12px;
+            border-radius: 20px;
+        }
+        .nav-item.active { background-color: #285B48; color: #ffffff; }
+        .hero-section {
+            background-color: #285B48;
+            color: #ffffff;
+            min-height: 80vh;
+            margin-top: 70px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <nav class="top-nav">
+        <a href="home.html">
+            <img src="C.jpg" alt="Cycle Logo" class="nav-logo">
+        </a>
+        <div class="nav-links">
+            <a href="home.html" class="nav-item active">HOME</a>
+            <a href="#" class="nav-item">My point</a>
+        </div>
+    </nav>
+    <section class="hero-section">
+        <h1 style="font-size: 32px;">Welcome to</h1>
+        <p style="font-size: 18px; opacity: 0.9;">Cycle Point Program</p>
+    </section>
+</body>
+</html>
