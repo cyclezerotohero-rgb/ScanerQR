@@ -46,33 +46,49 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: flex-start;
-            padding-top: 60px; /* เพิ่มระยะลงมาหน่อยให้ดูไม่อึดอัด */
+            justify-content: center;
+            padding: 40px 20px;
             text-align: center;
             color: #ffffff;
         }
 
-        /* รูป Cybooo.png ปรับขนาดให้ใหญ่พอดีตามสั่ง */
+        /* จัดระเบียบแถวบน: โลโก้ซ้าย ข้อความขวา */
+        .content-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 30px; /* ระยะห่างระหว่างรูปกับข้อความ */
+            flex-wrap: wrap; /* รองรับมือถือให้ลงมาต่อแถวกัน */
+            margin-bottom: 20px;
+        }
+
         .main-character {
-            width: 85%;
-            max-width: 450px; /* เพิ่มขนาดจากเดิม */
-            margin-bottom: 30px;
+            width: 80%;
+            max-width: 350px; /* ปรับขนาดให้พอดี */
             filter: drop-shadow(0 15px 20px rgba(0,0,0,0.3));
         }
 
         .program-title {
-            font-size: 3.5rem; /* ตัวใหญ่เน้นๆ */
+            font-size: 4.5rem; /* ใหญ่เท่าโลโก้ตามสั่ง */
             font-weight: 700;
-            margin-bottom: 10px;
+            margin: 0;
+            line-height: 1;
             letter-spacing: 2px;
         }
 
         .sub-title {
-            font-size: 1.5rem;
+            font-size: 2rem; /* เพิ่มขนาดจากเดิม */
             font-weight: 300;
             opacity: 0.9;
+            margin-top: 20px;
+            width: 100%;
         }
 
+        /* ปรับแต่งสำหรับมือถือ */
+        @media (max-width: 768px) {
+            .program-title { font-size: 3rem; }
+            .sub-title { font-size: 1.5rem; }
+        }
     </style>
 </head>
 <body>
@@ -86,14 +102,3 @@
             <a href="#" class="nav-item">My point</a>
         </div>
     </nav>
-
-    <section class="hero-section">
-        <img src="cyboo.png" alt="Cybooo" class="main-character">
-        
-        <div class="program-title">CYCLE POINT</div>
-        <div class="sub-title">ขวดน้ำแลกของรางวัลสุดว้าว! ทุกเดือน</div>
-        
-        </section>
-
-</body>
-</html>
