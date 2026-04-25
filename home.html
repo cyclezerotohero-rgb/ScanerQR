@@ -4,12 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cycle Point Program - Home</title>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;700&display=swap">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;700&display=swap" rel="stylesheet">
+    
     <style>
         body { 
-            margin: 0; padding: 0; 
+            margin: 0; 
+            padding: 0; 
             font-family: 'Kanit', sans-serif; 
-            background-color: #f8f9fa; 
+            background-color: #285B48; /* ตั้งพื้นหลังหลักเป็นสีเขียวกันพลาด */
             overflow-x: hidden;
         }
 
@@ -22,10 +26,19 @@
             padding: 0 20px;
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
             position: fixed;
-            top: 0; width: 100%; z-index: 1000; box-sizing: border-box;
+            top: 0; 
+            width: 100%; 
+            z-index: 1000; 
+            box-sizing: border-box;
         }
 
-        .nav-logo { height: 50px; cursor: pointer; margin-right: 20px; }
+        .nav-logo { 
+            height: 50px; 
+            width: auto;
+            cursor: pointer; 
+            margin-right: 20px; 
+        }
+
         .nav-links { display: flex; gap: 10px; }
 
         .nav-item {
@@ -42,52 +55,61 @@
         .hero-section {
             background-color: #285B48;
             min-height: 100vh;
-            margin-top: 70px;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            padding: 40px 20px;
+            padding: 100px 20px 40px 20px; /* เว้นที่ด้านบนหลบเมนูบาร์ */
             text-align: center;
             color: #ffffff;
+            box-sizing: border-box;
         }
 
-        /* จัดระเบียบแถวบน: โลโก้ซ้าย ข้อความขวา */
+        /* จัดระเบียบ: รูปซ้าย ข้อความขวา */
         .content-row {
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 30px; /* ระยะห่างระหว่างรูปกับข้อความ */
-            flex-wrap: wrap; /* รองรับมือถือให้ลงมาต่อแถวกัน */
-            margin-bottom: 20px;
-        }
-
-        .main-character {
-            width: 80%;
-            max-width: 350px; /* ปรับขนาดให้พอดี */
-            filter: drop-shadow(0 15px 20px rgba(0,0,0,0.3));
-        }
-
-        .program-title {
-            font-size: 4.5rem; /* ใหญ่เท่าโลโก้ตามสั่ง */
-            font-weight: 700;
-            margin: 0;
-            line-height: 1;
-            letter-spacing: 2px;
-        }
-
-        .sub-title {
-            font-size: 2rem; /* เพิ่มขนาดจากเดิม */
-            font-weight: 300;
-            opacity: 0.9;
-            margin-top: 20px;
+            gap: 40px;
+            flex-wrap: wrap; /* ป้องกันจอขาวในมือถือ ให้มันตัดลงมาเป็นแถวใหม่ได้ */
+            max-width: 1200px;
             width: 100%;
         }
 
-        /* ปรับแต่งสำหรับมือถือ */
+        .main-character {
+            width: 90%;
+            max-width: 400px; 
+            height: auto;
+            filter: drop-shadow(0 15px 25px rgba(0,0,0,0.3));
+        }
+
+        .title-container {
+            text-align: left; /* ให้ข้อความ CYCLE POINT ชิดซ้ายเทียบกับรูป */
+        }
+
+        .program-title {
+            font-size: clamp(3rem, 10vw, 5rem); /* ปรับขนาดอัตโนมัติตามหน้าจอ */
+            font-weight: 700;
+            margin: 0;
+            line-height: 0.9;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .sub-title {
+            font-size: clamp(1.2rem, 4vw, 2.2rem); 
+            font-weight: 300;
+            opacity: 0.9;
+            margin-top: 30px;
+            width: 100%;
+            text-align: center;
+        }
+
+        /* สำหรับมือถือ */
         @media (max-width: 768px) {
-            .program-title { font-size: 3rem; }
-            .sub-title { font-size: 1.5rem; }
+            .content-row { gap: 20px; }
+            .title-container { text-align: center; }
+            .hero-section { padding-top: 120px; }
         }
     </style>
 </head>
@@ -95,10 +117,27 @@
 
     <nav class="top-nav">
         <a href="home.html">
-            <img src="C.png" alt="Cycle Logo" class="nav-logo">
+            <img src="C.png" alt="Cycle Logo" class="nav-logo" onerror="this.src='C.jpg'">
         </a>
         <div class="nav-links">
             <a href="home.html" class="nav-item active">HOME</a>
             <a href="#" class="nav-item">My point</a>
         </div>
     </nav>
+
+    <section class="hero-section">
+        <div class="content-row">
+            <img src="cyboo.png" alt="Cybooo" class="main-character">
+            
+            <div class="title-container">
+                <h1 class="program-title">CYCLE<br>POINT</h1>
+            </div>
+        </div>
+        
+        <div class="sub-title">
+            ขวดน้ำแลกของรางวัลสุดว้าว! ทุกเดือน
+        </div>
+    </section>
+
+</body>
+</html>
