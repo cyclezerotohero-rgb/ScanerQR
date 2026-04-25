@@ -12,11 +12,11 @@
         body { 
             margin: 0; padding: 0; 
             font-family: 'Kanit', sans-serif; 
-            background-color: #285B48; /* พื้นหลังเขียว Cycle */
+            background-color: #285B48; 
             overflow-x: hidden;
         }
 
-        /* --- เมนูบาร์บนสุด (ดึงสไตล์เดิมมา) --- */
+        /* --- เมนูบาร์บนสุด --- */
         .top-nav {
             background-color: #ffffff;
             height: 70px;
@@ -49,13 +49,13 @@
             min-height: calc(100vh - 100px);
         }
 
-        /* ส่วนแสดงแต้มมุมขวาบนของบัตร */
+        /* ส่วนแสดงแต้มมุมขวาบน */
         .point-display {
             display: flex;
             align-items: center;
             justify-content: flex-end;
             width: 100%;
-            max-width: 600px; /* ให้กว้างพอดีกับบัตร */
+            max-width: 600px;
             margin-bottom: 10px;
             color: #ffffff;
         }
@@ -66,7 +66,7 @@
         .card-wrapper {
             position: relative;
             width: 100%;
-            max-width: 600px; /* ปรับขนาดการแสดงผลบนเว็บ */
+            max-width: 600px;
             border-radius: 20px;
             overflow: hidden;
             box-shadow: 0 20px 40px rgba(0,0,0,0.4);
@@ -76,12 +76,12 @@
             display: block;
         }
 
-        /* จุดที่จะวางข้อความทับลงบนบัตร (เดี๋ยวเราจะเชื่อม Google Sheet ใน Step ถัดไป) */
+        /* ชั้นวางข้อความทับ (เอาคำว่ากำลังโหลดออกแล้ว แต่เว้นที่ไว้) */
         .text-overlay {
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
             color: white;
-            pointer-events: none; /* ให้กดผ่านตัวหนังสือได้ */
+            pointer-events: none;
         }
 
         /* --- ปุ่มกดด้านล่าง --- */
@@ -96,6 +96,7 @@
             border-radius: 15px;
             box-shadow: 0 5px 0 #cccccc;
             transition: 0.2s;
+            display: inline-block; /* บังคับให้ปุ่มแสดงผลชัดเจน */
         }
         .btn-redeem:active {
             transform: translateY(3px);
@@ -124,8 +125,11 @@
         </div>
 
         <div class="card-wrapper">
-            <img src="card.png" alt="Member Card" class="card-img">
+            <img src="card.png" alt="Member Card" class="card-img" onerror="this.src='card.jpg'">
             
+            <div class="text-overlay">
+                <div id="user-name" style="position:absolute; top:42%; left:58%; font-size:1.2rem; font-weight:bold;"></div>
+                <div id="user-id" style="position:absolute; top:33%; left:75%; font-size:1rem;"></div>
             </div>
         </div>
 
