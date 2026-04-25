@@ -25,13 +25,13 @@
             top: 0; width: 100%; z-index: 1000; box-sizing: border-box;
         }
 
-        .nav-logo { height: 45px; cursor: pointer; margin-right: 20px; }
+        .nav-logo { height: 50px; cursor: pointer; margin-right: 20px; }
         .nav-links { display: flex; gap: 10px; }
 
         .nav-item {
             text-decoration: none;
             color: #285B48;
-            font-size: 15px;
+            font-size: 16px;
             font-weight: 700;
             padding: 8px 18px;
             border-radius: 25px;
@@ -47,57 +47,30 @@
             flex-direction: column;
             align-items: center;
             justify-content: flex-start;
-            padding-top: 40px;
+            padding-top: 60px; /* เพิ่มระยะลงมาหน่อยให้ดูไม่อึดอัด */
             text-align: center;
             color: #ffffff;
         }
 
-        /* รูปน้อง Cybooo (LOGO LOVE.png) */
+        /* รูป Cybooo.png ปรับขนาดให้ใหญ่พอดีตามสั่ง */
         .main-character {
-            width: 80%;
-            max-width: 350px;
-            margin-bottom: 20px;
-            filter: drop-shadow(0 10px 15px rgba(0,0,0,0.2)); /* ใส่เงาให้ตัวละครลอยออกมา */
+            width: 85%;
+            max-width: 450px; /* เพิ่มขนาดจากเดิม */
+            margin-bottom: 30px;
+            filter: drop-shadow(0 15px 20px rgba(0,0,0,0.3));
         }
 
         .program-title {
-            font-size: 2.5rem;
+            font-size: 3.5rem; /* ตัวใหญ่เน้นๆ */
             font-weight: 700;
-            margin-bottom: 5px;
-            line-height: 1.1;
+            margin-bottom: 10px;
+            letter-spacing: 2px;
         }
 
         .sub-title {
-            font-size: 1.2rem;
+            font-size: 1.5rem;
+            font-weight: 300;
             opacity: 0.9;
-            margin-bottom: 30px;
-        }
-
-        /* --- กลุ่มปุ่มกดสไตล์ MamyPoko --- */
-        .button-group {
-            display: flex;
-            gap: 15px;
-            flex-wrap: wrap;
-            justify-content: center;
-            padding: 0 20px;
-        }
-
-        .btn-action {
-            background-color: #FFD700; /* สีเหลืองทองให้ตัดกับสีเขียว */
-            color: #285B48;
-            text-decoration: none;
-            font-weight: 700;
-            font-size: 18px;
-            padding: 15px 30px;
-            border-radius: 15px;
-            box-shadow: 0 5px 0 #b89b00; /* ใส่เงาปุ่มให้ดูมีมิติเหมือนปุ่มกด */
-            transition: 0.2s;
-            min-width: 150px;
-        }
-
-        .btn-action:active {
-            transform: translateY(3px);
-            box-shadow: 0 2px 0 #b89b00;
         }
 
     </style>
@@ -106,7 +79,7 @@
 
     <nav class="top-nav">
         <a href="home.html">
-            <img src="C.jpg" alt="Cycle Logo" class="nav-logo">
+            <img src="C.png" alt="Cycle Logo" class="nav-logo">
         </a>
         <div class="nav-links">
             <a href="home.html" class="nav-item active">HOME</a>
@@ -115,16 +88,12 @@
     </nav>
 
     <section class="hero-section">
-        <img src="LOGO%20LOVE.png" alt="Cybooo" class="main-character">
+        <img src="cybooo.png" alt="Cybooo" class="main-character">
         
-        <div class="program-title">POINT PROGRAM</div>
-        <div class="sub-title">เปลี่ยนขวดเปล่า ให้เป็นแต้มสุดเฟี้ยว</div>
-
-        <div class="button-group">
-            <a href="index.html" class="btn-action">เริ่มสแกนขวด</a>
-            <a href="#" class="btn-action" style="background-color: #ffffff; box-shadow: 0 5px 0 #cccccc;">เช็คแต้ม</a>
-        </div>
-    </section>
+        <div class="program-title">CYCLE POINT</div>
+        <div class="sub-title">ขวดน้ำแลกของรางวัลสุดว้าว! ทุกเดือน</div>
+        
+        </section>
 
 </body>
 </html>
