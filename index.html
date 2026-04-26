@@ -7,14 +7,14 @@
     <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;700&display=swap" rel="stylesheet">
     <style>
         body { margin: 0; padding: 0; font-family: 'Kanit', sans-serif; background-color: #285B48; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
-        .container { width: 100%; max-width: 400px; padding: 30px; text-align: center; }
+        .container { width: 100%; max-width: 400px; padding: 20px; text-align: center; }
         .logo-main { width: 180px; margin-bottom: 10px; }
-        h2 { color: #ffffff; margin-bottom: 25px; }
+        h2 { color: #ffffff; margin-bottom: 25px; font-weight: 400; }
         .form-group { margin-bottom: 15px; text-align: left; }
         label { display: block; color: #ffffff; margin-bottom: 5px; font-size: 0.9rem; }
-        input { width: 100%; padding: 12px; border-radius: 10px; border: none; box-sizing: border-box; font-size: 1rem; }
+        input, select { width: 100%; padding: 12px; border-radius: 10px; border: none; box-sizing: border-box; font-family: 'Kanit', sans-serif; font-size: 1rem; background-color: #ffffff; }
         .btn-submit { width: 100%; padding: 15px; background-color: #FFD700; color: #285B48; border: none; border-radius: 12px; font-size: 1.2rem; font-weight: 700; cursor: pointer; margin-top: 20px; box-shadow: 0 5px 0 #c7a800; }
-        .btn-submit:disabled { background-color: #ccc; box-shadow: none; }
+        .btn-submit:disabled { background-color: #ccc; box-shadow: none; cursor: not-allowed; }
     </style>
 </head>
 <body>
@@ -24,56 +24,83 @@
         <h2>ลงทะเบียนสมาชิก</h2>
 
         <div class="form-group">
-            <label>พิมพ์ชื่อจริงและนามสกุลของท่าน</label>
+            <label>ชื่อ-นามสกุล</label>
             <input type="text" id="fullname" placeholder="สมชาย รักโลก">
         </div>
+
         <div class="form-group">
             <label>ชื่อเล่น</label>
             <input type="text" id="nickname" placeholder="ต้น">
         </div>
+
         <div class="form-group">
             <label>วันเกิด (วว/ดด/25xx)</label>
-            <input type="text" id="birthdate" placeholder="26/04/2530">
+            <input type="text" id="birthdate" placeholder="วว/ดด/25xx" maxlength="10">
         </div>
-       <div class="form-group">
-    <label>องค์กร/โรงเรียนของท่าน</label>
-    <select id="organization">
-        <option value="" disabled selected>-- คลิกเพื่อเลือกโรงเรียน --</option>
-        <option value="โรงเรียนสารสาสน์วิเทศเชียงใหม่">โรงเรียนสารสาสน์วิเทศเชียงใหม่</option>
-    </select>
-</div>
+
+        <div class="form-group">
+            <label>องค์กร/โรงเรียน</label>
+            <select id="organization">
+                <option value="" disabled selected>-- เลือกโรงเรียน --</option>
+                <option value="โรงเรียนสารสาสน์วิเทศเชียงใหม่">โรงเรียนสารสาสน์วิเทศเชียงใหม่</option>
+            </select>
+        </div>
 
         <button class="btn-submit" id="submitBtn" onclick="sendData()">ลงทะเบียน</button>
     </div>
 
     <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
     <script>
-        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxLWr3itNeG_O_NwymJ02Ia7Z5zaUfI5nM4wkeHADLbG78dUG4zLmACKGjVnMu3-VI/exec"; 
+        // *** แก้ไข 2 จุดนี้ ***
+        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbw07P02reftfroKb9gnt4R-4rPkMXaCFGwEueQ5YCSHaEZL6DWc0sKt14tYcsCKS-40/exec"; 
+        const MY_LIFF_ID = "https://liff.line.me/2009856940-tyxcN1rB"; 
+
         let userId = "";
 
         async function initLiff() {
-            await liff.init({ liffId: "https://liff.line.me/2009856940-tyxcN1rB" });
-            if (liff.isLoggedIn()) {
-                const profile = await liff.getProfile();
-                userId = profile.userId;
-            } else {
-                liff.login();
-            }
+            try {
+                await liff.init({ liffId: MY_LIFF_ID });
+                if (liff.isLoggedIn()) {
+                    const profile = await liff.getProfile();
+                    userId = profile.userId;
+                } else {
+                    liff.login();
+                }
+            } catch (e) { console.error(e); }
         }
         initLiff();
+
+        // ล็อกฟอร์แมตวันเกิด
+        const birthInput = document.getElementById('birthdate');
+        birthInput.addEventListener('input', function(e) {
+            let v = e.target.value.replace(/\D/g, '');
+            let f = "";
+            if (v.length > 0) {
+                let d = v.substring(0, 2);
+                if (d.length === 2 && parseInt(d) > 31) d = "31";
+                f = d;
+            }
+            if (v.length > 2) {
+                let m = v.substring(2, 4);
+                if (m.length === 2 && parseInt(m) > 12) m = "12";
+                f += "/" + m;
+            }
+            if (v.length > 4) f += "/25" + v.substring(4, 6);
+            e.target.value = f;
+        });
 
         async function sendData() {
             const btn = document.getElementById('submitBtn');
             const data = {
                 lineId: userId,
-                fullname: document.getElementById('fullname').value,
-                nickname: document.getElementById('nickname').value,
-                birthdate: document.getElementById('birthdate').value,
-                organization: document.getElementById('organization').value
+                fullname: document.getElementById('fullname').value.trim(),
+                nickname: document.getElementById('nickname').value.trim(),
+                birthdate: document.getElementById('birthdate').value.trim(),
+                dept: document.getElementById('organization').value
             };
 
-            if(!data.fullname || !data.nickname || !data.birthdate || !data.organization) {
-                alert('กรอกข้อมูลให้ครบก่อนนะคร้าบ');
+            if(!data.fullname || !data.nickname || !data.birthdate || !data.dept) {
+                alert('กรุณากรอกข้อมูลให้ครบถ้วนนะครับ');
                 return;
             }
 
@@ -84,15 +111,12 @@
                 await fetch(WEB_APP_URL, {
                     method: 'POST',
                     mode: 'no-cors',
-                    cache: 'no-cache',
-                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(data)
                 });
-                
-                alert('ลงทะเบียนเรียบร้อย! ยินดีต้อนรับสู่ Cycle Member ครับ');
+                alert('ลงทะเบียนสำเร็จ!');
                 window.location.href = "mypoint.html";
-            } catch (error) {
-                alert('เกิดข้อผิดพลาด ลองใหม่อีกครั้งนะครับ');
+            } catch (err) {
+                alert('เกิดข้อผิดพลาด ลองใหม่อีกครั้ง');
                 btn.disabled = false;
                 btn.innerText = "ลงทะเบียน";
             }
