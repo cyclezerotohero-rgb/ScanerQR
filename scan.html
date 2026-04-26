@@ -127,14 +127,11 @@
             };
 
            // ค้นหาบรรทัดนี้ในฟังก์ชัน confirmData
+// ในไฟล์ scan.html
 try {
-    await fetch(WEB_APP_URL, { 
-        method: 'POST', 
-        mode: 'no-cors', 
-        body: JSON.stringify(data) 
-    });
+    await fetch(WEB_APP_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(data) });
     
-    // เปลี่ยนจาก alert เป็นการเปลี่ยนหน้า
+    // เปลี่ยนจาก alert เป็นบรรทัดนี้ครับ
     window.location.href = "mypoint.html"; 
     
 } catch (err) {
