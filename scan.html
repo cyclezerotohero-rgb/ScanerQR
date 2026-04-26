@@ -126,13 +126,20 @@
                 bottleIds: scannedItems
             };
 
-            try {
-                // ส่งข้อมูล (ใช้ mode no-cors สำหรับ Google Apps Script)
-                await fetch(WEB_APP_URL, { 
-                    method: 'POST', 
-                    mode: 'no-cors', 
-                    body: JSON.stringify(data) 
-                });
+           // ค้นหาบรรทัดนี้ในฟังก์ชัน confirmData
+try {
+    await fetch(WEB_APP_URL, { 
+        method: 'POST', 
+        mode: 'no-cors', 
+        body: JSON.stringify(data) 
+    });
+    
+    // เปลี่ยนจาก alert เป็นการเปลี่ยนหน้า
+    window.location.href = "mypoint.html"; 
+    
+} catch (err) {
+    alert('เกิดข้อผิดพลาดในการส่งข้อมูล');
+}
                 
                 alert('สะสมแต้มสำเร็จ! ข้อมูลถูกบันทึกเรียบร้อยครับ');
                 // ล้างค่าเพื่อเริ่มรอบใหม่
