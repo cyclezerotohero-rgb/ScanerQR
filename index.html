@@ -4,178 +4,96 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ลงทะเบียน Cycle Member</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;700&display=swap" rel="stylesheet">
-    
     <style>
-        body { 
-            margin: 0; padding: 0; 
-            font-family: 'Kanit', sans-serif; 
-            background-color: #285B48; /* สีเขียวหลักของพี่ */
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-        }
-
-        .container {
-            width: 100%;
-            max-width: 400px;
-            padding: 30px;
-            text-align: center;
-        }
-
-        .logo-main {
-            width: 200px; /* ขนาดรูปเจ้า cyboo */
-            margin-bottom: 20px;
-            filter: drop-shadow(0 10px 15px rgba(0,0,0,0.2));
-        }
-
-        h2 { color: #ffffff; margin-bottom: 25px; font-weight: 400; }
-
-        .form-group {
-            margin-bottom: 20px;
-            text-align: left;
-        }
-
-        label {
-            display: block;
-            color: #ffffff;
-            font-weight: 400;
-            margin-bottom: 8px;
-            font-size: 0.95rem;
-        }
-
-        input {
-            width: 100%;
-            padding: 14px;
-            border-radius: 12px;
-            border: none;
-            box-sizing: border-box;
-            font-family: 'Kanit', sans-serif;
-            font-size: 1rem;
-            background-color: #ffffff;
-            box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
-        }
-
-        input:focus {
-            outline: 3px solid #FFD700; /* ขอบสีทองตอนกดพิมพ์ */
-        }
-
-        .btn-submit {
-            width: 100%;
-            padding: 15px;
-            background-color: #FFD700; /* ปุ่มสีเหลืองทองตัดกับเขียว */
-            color: #285B48;
-            border: none;
-            border-radius: 12px;
-            font-size: 1.2rem;
-            font-weight: 700;
-            cursor: pointer;
-            margin-top: 20px;
-            box-shadow: 0 5px 0 #c7a800;
-            transition: 0.2s;
-        }
-
-        .btn-submit:active {
-            transform: translateY(3px);
-            box-shadow: 0 2px 0 #c7a800;
-        }
+        body { margin: 0; padding: 0; font-family: 'Kanit', sans-serif; background-color: #285B48; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+        .container { width: 100%; max-width: 400px; padding: 30px; text-align: center; }
+        .logo-main { width: 180px; margin-bottom: 10px; }
+        h2 { color: #ffffff; margin-bottom: 25px; }
+        .form-group { margin-bottom: 15px; text-align: left; }
+        label { display: block; color: #ffffff; margin-bottom: 5px; font-size: 0.9rem; }
+        input { width: 100%; padding: 12px; border-radius: 10px; border: none; box-sizing: border-box; font-size: 1rem; }
+        .btn-submit { width: 100%; padding: 15px; background-color: #FFD700; color: #285B48; border: none; border-radius: 12px; font-size: 1.2rem; font-weight: 700; cursor: pointer; margin-top: 20px; box-shadow: 0 5px 0 #c7a800; }
+        .btn-submit:disabled { background-color: #ccc; box-shadow: none; }
     </style>
 </head>
 <body>
 
     <div class="container">
         <img src="cyboo.png" alt="Cyboo" class="logo-main">
-        
         <h2>ลงทะเบียนสมาชิก</h2>
 
         <div class="form-group">
             <label>พิมพ์ชื่อจริงและนามสกุลของท่าน</label>
             <input type="text" id="fullname" placeholder="สมชาย รักโลก">
         </div>
-
         <div class="form-group">
             <label>ชื่อเล่น</label>
             <input type="text" id="nickname" placeholder="ต้น">
         </div>
-
         <div class="form-group">
             <label>วันเกิด (วว/ดด/25xx)</label>
             <input type="text" id="birthdate" placeholder="26/04/2530">
         </div>
-
         <div class="form-group">
             <label>องค์กร/โรงเรียนของท่าน</label>
             <input type="text" id="organization" placeholder="ชื่อโรงเรียนหรือหน่วยงาน">
         </div>
 
-        <button class="btn-submit" onclick="sendData()">ลงทะเบียน</button>
+        <button class="btn-submit" id="submitBtn" onclick="sendData()">ลงทะเบียน</button>
     </div>
 
     <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
-<script>
-    // 1. วางลิงก์ Web App URL ตัวใหม่ที่พี่เพิ่งก๊อปมาตรงนี้ครับ
-    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxCcyUN7pNylHw_Ir6WXSuaUqA-976Xw-1LD-Su_rgUSxPmw7ChVAi0_UDKAGl-SK_K/exec"; 
-    
-    let userId = "";
+    <script>
+        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxLWr3itNeG_O_NwymJ02Ia7Z5zaUfI5nM4wkeHADLbG78dUG4zLmACKGjVnMu3-VI/exec"; 
+        let userId = "";
 
-    // 2. เริ่มต้นระบบ LIFF (อย่าลืมเช็ค LIFF ID ด้วยนะครับ)
-    async function initLiff() {
-        await liff.init({ liffId: "https://liff.line.me/2009856940-tyxcN1rB" });
-        if (liff.isLoggedIn()) {
-            const profile = await liff.getProfile();
-            userId = profile.userId;
-        } else {
-            liff.login();
+        async function initLiff() {
+            await liff.init({ liffId: "https://liff.line.me/2009856940-tyxcN1rB" });
+            if (liff.isLoggedIn()) {
+                const profile = await liff.getProfile();
+                userId = profile.userId;
+            } else {
+                liff.login();
+            }
         }
-    }
-    initLiff();
+        initLiff();
 
-    // 3. ฟังก์ชันส่งข้อมูลเข้า Google Sheets ชุดใหม่
-    async function sendData() {
-        const btn = document.getElementById('submitBtn');
-        
-        // ดึงค่าจากช่องกรอกในหน้าเว็บ
-        const data = {
-            lineId: userId,
-            fullname: document.getElementById('fullname').value,
-            nickname: document.getElementById('nickname').value,
-            birthdate: document.getElementById('birthdate').value,
-            dept: document.getElementById('organization').value // ส่งค่าเข้าคอลัมน์ Dept
-        };
+        async function sendData() {
+            const btn = document.getElementById('submitBtn');
+            const data = {
+                lineId: userId,
+                fullname: document.getElementById('fullname').value,
+                nickname: document.getElementById('nickname').value,
+                birthdate: document.getElementById('birthdate').value,
+                organization: document.getElementById('organization').value
+            };
 
-        // ตรวจสอบว่ากรอกครบไหม
-        if(!data.fullname || !data.nickname || !data.birthdate || !data.dept) {
-            alert('กรุณากรอกข้อมูลให้ครบถ้วนนะครับพี่');
-            return;
+            if(!data.fullname || !data.nickname || !data.birthdate || !data.organization) {
+                alert('กรอกข้อมูลให้ครบก่อนนะคร้าบ');
+                return;
+            }
+
+            btn.disabled = true;
+            btn.innerText = "กำลังบันทึก...";
+
+            try {
+                await fetch(WEB_APP_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    cache: 'no-cache',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                
+                alert('ลงทะเบียนเรียบร้อย! ยินดีต้อนรับสู่ Cycle Member ครับ');
+                window.location.href = "mypoint.html";
+            } catch (error) {
+                alert('เกิดข้อผิดพลาด ลองใหม่อีกครั้งนะครับ');
+                btn.disabled = false;
+                btn.innerText = "ลงทะเบียน";
+            }
         }
-
-        btn.disabled = true;
-        btn.innerText = "กำลังบันทึกข้อมูล...";
-
-        try {
-            // ส่งข้อมูลไปที่ Google Sheets (Web App URL ใหม่)
-            await fetch(WEB_APP_URL, {
-                method: 'POST',
-                mode: 'no-cors',
-                cache: 'no-cache',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(data)
-            });
-            
-            alert('ลงทะเบียนสำเร็จ! ยินดีต้อนรับสู่ Cycle Member ครับ');
-            window.location.href = "mypoint.html"; // ไปหน้าบัตรสมาชิกทันที
-            
-        } catch (error) {
-            console.error(error);
-            alert('เกิดข้อผิดพลาดนิดหน่อย ลองใหม่อีกครั้งนะครับพี่');
-            btn.disabled = false;
-            btn.innerText = "ลงทะเบียน";
-        }
-    }
-</script>
     </script>
 </body>
 </html>
