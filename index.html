@@ -117,13 +117,13 @@
     <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
 <script>
     // 1. วางลิงก์ Web App URL ตัวใหม่ที่พี่เพิ่งก๊อปมาตรงนี้ครับ
-    const WEB_APP_URL = "วาง_URL_ใหม่ของพี่ตรงนี้"; 
+    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxCcyUN7pNylHw_Ir6WXSuaUqA-976Xw-1LD-Su_rgUSxPmw7ChVAi0_UDKAGl-SK_K/exec"; 
     
     let userId = "";
 
     // 2. เริ่มต้นระบบ LIFF (อย่าลืมเช็ค LIFF ID ด้วยนะครับ)
     async function initLiff() {
-        await liff.init({ liffId: "วาง_LIFF_ID_ของพี่ตรงนี้" });
+        await liff.init({ liffId: "https://liff.line.me/2009856940-tyxcN1rB" });
         if (liff.isLoggedIn()) {
             const profile = await liff.getProfile();
             userId = profile.userId;
