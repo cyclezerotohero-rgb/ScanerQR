@@ -13,7 +13,7 @@
         
         .form-group { text-align: left; margin-bottom: 15px; width: 100%; }
         label { display: block; margin-bottom: 5px; font-size: 0.9rem; }
-        input, select { width: 100%; padding: 12px; border-radius: 10px; border: none; font-family: 'Kanit'; box-sizing: border-box; }
+        input, select { width: 100%; padding: 12px; border-radius: 10px; border: none; font-family: 'Kanit'; box-sizing: border-box; color: #333; }
         
         .btn-submit { width: 100%; padding: 15px; border-radius: 15px; background-color: #FFD700; color: #285B48; border: none; font-size: 1.2rem; font-weight: 700; cursor: pointer; margin-top: 10px; box-shadow: 0 4px 0 #c7a800; }
         .btn-submit:active { transform: translateY(4px); box-shadow: none; }
@@ -42,13 +42,11 @@
     </div>
     
     <div class="form-group">
-        <label>หน่วยงาน/แผนก</label>
+        <label>โรงเรียน/หน่วยงาน</label>
         <select id="dept">
             <option value="">เลือกหน่วยงาน</option>
-            <option value="IT">IT</option>
-            <option value="HR">HR</option>
-            <option value="Production">Production</option>
-            <option value="Sales">Sales</option>
+            <option value="โรงเรียนสารสาสน์">โรงเรียนสารสาสน์</option>
+            <option value="อื่นๆ">อื่นๆ</option>
         </select>
     </div>
 
@@ -56,12 +54,14 @@
 </div>
 
 <script>
-    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwsMkiz80Yg7Mfz8Xn_Z4YfeEIUIJ8Y7edd44ojaGzlI7gbQVtvBzNhnJuQ2m_4K_xk/exec";
+    // ระบบ Auto-Login
+    window.onload = function() {
+        if (localStorage.getItem('cycle_user_id')) {
+            window.location.href = "scan.html";
+        }
+    };
 
-    async mystery_register() {
-        // (ฟังก์ชันนี้ใช้สร้าง Member ID สุ่มแบบง่ายๆ หรือพี่จะใช้ระบบอื่นก็ได้)
-        return "MB" + Math.floor(1000 + Math.random() * 9000);
-    }
+    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwsMkiz80Yg7Mfz8Xn_Z4YfeEIUIJ8Y7edd44ojaGzlI7gbQVtvBzNhnJuQ2m_4K_xk/exec";
 
     async function register() {
         const btn = document.getElementById('regBtn');
@@ -78,7 +78,7 @@
         btn.disabled = true;
         btn.innerText = "กำลังบันทึก...";
 
-        const myId = "MB" + Date.now().toString().slice(-6); // สร้าง ID จากเวลาปัจจุบัน
+        const myId = "MB" + Date.now().toString().slice(-6);
 
         const data = {
             action: "register",
@@ -96,14 +96,14 @@
                 body: JSON.stringify(data) 
             });
 
-            // *** ส่วนสำคัญที่สุด: สั่งให้เครื่องจำข้อมูลทั้งหมด ***
+            // บันทึกข้อมูลลงเครื่อง
             localStorage.setItem('cycle_user_id', myId);
             localStorage.setItem('cycle_user_fullname', data.fullname);
             localStorage.setItem('cycle_user_nickname', data.nickname);
             localStorage.setItem('cycle_user_birthdate', data.birthdate);
             localStorage.setItem('cycle_user_dept', data.dept);
 
-            alert('ลงทะเบียนสำเร็จ! รหัสของคุณคือ ' + myId);
+            alert('ลงทะเบียนสำเร็จ!');
             window.location.href = "scan.html"; 
             
         } catch (err) {
