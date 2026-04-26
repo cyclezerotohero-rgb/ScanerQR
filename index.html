@@ -1,155 +1,139 @@
 <!DOCTYPE html>
-<html>
+<html lang="th">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cycle Smart Bin</title>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=FC+Iconic:wght@700&display=swap">
-    <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
-    <script src="https://unpkg.com/@zxing/library@latest"></script>
+    <title>ลงทะเบียน Cycle Member</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;700&display=swap" rel="stylesheet">
+    
     <style>
-        body { text-align: center; font-family: 'FC Iconic', sans-serif; background-color: #f8f9fa; margin: 0; }
-        .container { padding: 30px 20px; display: flex; flex-direction: column; min-height: 100vh; align-items: center; justify-content: center; }
-        .info-card { background: white; padding: 30px; border-radius: 25px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 90%; max-width: 350px; border: 2px solid #1a4d2e; }
-        h2 { color: #1a4d2e; margin: 10px 0; font-size: 28px; }
-        input, select { width: 100%; padding: 12px; margin-bottom: 20px; border-radius: 10px; border: 1px solid #ddd; box-sizing: border-box; font-size: 16px; font-family: 'FC Iconic'; }
-        .btn-confirm { background: #1a4d2e; color: white; padding: 15px; width: 100%; border: none; border-radius: 30px; font-size: 18px; font-weight: 700; cursor: pointer; text-decoration: none; display: block; }
-        
-        #scan-page, #success-page { display: none; }
-        #video { width: 100%; border-radius: 15px; background: #000; margin-top: 20px; border: 4px solid #1a4d2e; max-width: 400px; }
-        .status-text { margin-top:15px; color:#1a4d2e; font-weight:bold; }
+        body { 
+            margin: 0; padding: 0; 
+            font-family: 'Kanit', sans-serif; 
+            background-color: #285B48; /* สีเขียวหลักของพี่ */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
 
-        /* Guide จอดำ */
-        #guide-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 9999; color: white; }
-        .guide-text { position: absolute; bottom: 120px; right: 20px; left: 20px; background: white; color: #333; padding: 25px; border-radius: 20px; border: 3px solid #1a4d2e; }
-        .arrow-point { position: absolute; bottom: 30px; right: 30px; font-size: 60px; animation: bounce 1s infinite; }
-        @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-20px); } }
+        .container {
+            width: 100%;
+            max-width: 400px;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .logo-main {
+            width: 200px; /* ขนาดรูปเจ้า cyboo */
+            margin-bottom: 20px;
+            filter: drop-shadow(0 10px 15px rgba(0,0,0,0.2));
+        }
+
+        h2 { color: #ffffff; margin-bottom: 25px; font-weight: 400; }
+
+        .form-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        label {
+            display: block;
+            color: #ffffff;
+            font-weight: 400;
+            margin-bottom: 8px;
+            font-size: 0.95rem;
+        }
+
+        input {
+            width: 100%;
+            padding: 14px;
+            border-radius: 12px;
+            border: none;
+            box-sizing: border-box;
+            font-family: 'Kanit', sans-serif;
+            font-size: 1rem;
+            background-color: #ffffff;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        input:focus {
+            outline: 3px solid #FFD700; /* ขอบสีทองตอนกดพิมพ์ */
+        }
+
+        .btn-submit {
+            width: 100%;
+            padding: 15px;
+            background-color: #FFD700; /* ปุ่มสีเหลืองทองตัดกับเขียว */
+            color: #285B48;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.2rem;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: 20px;
+            box-shadow: 0 5px 0 #c7a800;
+            transition: 0.2s;
+        }
+
+        .btn-submit:active {
+            transform: translateY(3px);
+            box-shadow: 0 2px 0 #c7a800;
+        }
     </style>
 </head>
 <body>
 
-    <div id="setup-page" class="container">
-        <img src="https://cyclezerotohero-rgb.github.io/ScanerQR/CYCLE.png" style="width: 120px; margin-bottom: 10px;">
-        <div class="info-card">
-            <h2>Cycle อยากรู้จัก!!</h2>
-            <p style="color:#666; font-size:14px; margin-bottom: 20px;">โปรดกรอกข้อมูลและองค์กรของท่าน</p>
-            <input type="text" id="real-name" placeholder="พิมพ์ชื่อของท่านที่นี่">
-            <select id="org-select">
-                <option value="โรงเรียนสารสาสน์วิเทศเชียงใหม่">โรงเรียนสารสาสน์วิเทศเชียงใหม่</option>
-            </select>
-            <button class="btn-confirm" onclick="saveInfo()">ยืนยันข้อมูล</button>
+    <div class="container">
+        <img src="cyboo.png" alt="Cyboo" class="logo-main">
+        
+        <h2>ลงทะเบียนสมาชิก</h2>
+
+        <div class="form-group">
+            <label>พิมพ์ชื่อจริงและนามสกุลของท่าน</label>
+            <input type="text" id="fullname" placeholder="สมชาย รักโลก">
         </div>
-    </div>
 
-    <div id="scan-page" class="container">
-        <h3 style="color:#1a4d2e;">สแกนบาร์โค้ดเพื่อรับแต้ม</h3>
-        <p id="user-display" style="color:#1a4d2e; font-weight:bold;"></p>
-        <video id="video" playsinline></video>
-        <p id="status" class="status-text">[ ส่องกล้องไปที่บาร์โค้ด ]</p>
-        <button onclick="localStorage.clear(); location.reload();" style="background:none; border:none; color:gray; text-decoration:underline; margin-top:20px; font-family:'FC Iconic';">แก้ไขชื่อ/องค์กร</button>
-    </div>
-
-   <div id="success-page" class="container" style="display:none; flex-direction: column; align-items: center; justify-content: center;">
-        <div class="info-card">
-            <img src="https://cyclezerotohero-rgb.github.io/ScanerQR/LOGO LOVE.png" 
-                 style="width: 100%; max-width: 280px; height: auto; margin-bottom: 15px;"
-                 onerror="this.src='https://cyclezerotohero-rgb.github.io/ScanerQR/image_1.png'"> 
-            
-            <h2 style="color: #1a4d2e; font-size: 26px; margin-top: 10px;">Cybooo ได้รับขวดแล้ว</h2>
-            <p style="color: #666; margin-bottom: 25px; font-size: 16px;">ขอบคุณที่ช่วยดูแลโลกกับเรานะครับ</p>
-            
-            <a href="https://u.lin.ee/YHZFi0j" class="btn-confirm" style="text-decoration: none;">กดรับแต้มผ่าน LINE</a>
+        <div class="form-group">
+            <label>ชื่อเล่น</label>
+            <input type="text" id="nickname" placeholder="ต้น">
         </div>
-    </div>
 
-    <div id="guide-overlay">
-        <div class="guide-text">
-            <h3 style="margin-top:0; color:#1a4d2e;">พบปัญหาจอดำ?</h3>
-            <p style="font-size:18px;">กดที่ปุ่ม <b>"3 จุด"</b> หรือ <b>"เข็มทิศ"</b><br>มุมขวาล่าง แล้วเลือก<br><b>"เปิดในเบราว์เซอร์"</b> นะครับ</p>
+        <div class="form-group">
+            <label>วันเกิด (วว/ดด/25xx)</label>
+            <input type="text" id="birthdate" placeholder="26/04/2530">
         </div>
-        <div class="arrow-point">👇</div>
+
+        <div class="form-group">
+            <label>องค์กร/โรงเรียนของท่าน</label>
+            <input type="text" id="organization" placeholder="ชื่อโรงเรียนหรือหน่วยงาน">
+        </div>
+
+        <button class="btn-submit" onclick="sendData()">ลงทะเบียน</button>
     </div>
 
+    <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
     <script>
-        const myLiffId = "2009856940-tyxcN1rB"; 
-        const myScriptUrl = "https://script.google.com/macros/s/AKfycbyTjRZRUoEPSxCmJwJ_i4D-BxhKXSkCCNXA7vvLACjCLNKxg0KfF1w7qwEtYTmngQ8PKg/exec"; 
+        async function sendData() {
+            const fullname = document.getElementById('fullname').value;
+            const nickname = document.getElementById('nickname').value;
+            const birthdate = document.getElementById('birthdate').value;
+            const organization = document.getElementById('organization').value;
 
-        async function main() {
-            await liff.init({ liffId: myLiffId });
-            if (!liff.isLoggedIn()) liff.login();
-            const n = localStorage.getItem('cycle_v1_name');
-            const o = localStorage.getItem('cycle_v1_org');
-            if (n && o) showScanPage(n);
-        }
-
-        function saveInfo() {
-            const n = document.getElementById('real-name').value.trim();
-            const o = document.getElementById('org-select').value;
-            if(!n) return alert("กรุณากรอกชื่อก่อนนะครับ");
-            localStorage.setItem('cycle_v1_name', n);
-            localStorage.setItem('cycle_v1_org', o);
-            showScanPage(n);
-        }
-
-        function showScanPage(name) {
-            document.getElementById('setup-page').style.display = 'none';
-            document.getElementById('scan-page').style.display = 'block';
-            document.getElementById('user-display').innerText = "สวัสดีคุณ: " + name;
-            startScanner();
-        }
-
-        async function startScanner() {
-            const codeReader = new ZXing.BrowserMultiFormatReader();
-            try {
-                const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
-                document.getElementById('video').srcObject = stream;
-                await document.getElementById('video').play();
-                
-                codeReader.decodeFromVideoDevice(null, 'video', (result) => {
-                    if (result) {
-                        document.getElementById('status').innerText = "⏳ กำลังตรวจสอบรหัส...";
-                        document.getElementById('status').style.color = "orange";
-                        sendData(result.text);
-                        codeReader.reset();
-                        stream.getTracks().forEach(t => t.stop());
-                    }
-                });
-            } catch (err) {
-                document.getElementById('guide-overlay').style.display = 'block';
+            if(!fullname || !nickname || !birthdate || !organization) {
+                alert('กรุณากรอกข้อมูลให้ครบถ้วนนะครับพี่');
+                return;
             }
-        }
 
-        async function sendData(barcode) {
-            const profile = await liff.getProfile();
-            const n = localStorage.getItem('cycle_v1_name');
-            const o = localStorage.getItem('cycle_v1_org');
+            // ตรงนี้คือจุดที่เราจะส่งค่าไป Google Sheets 
+            // พี่เอาฟังก์ชัน submit เดิมของพี่มาต่อตรงนี้ได้เลยครับ
+            alert('บันทึกข้อมูลของ ' + fullname + ' เรียบร้อยแล้ว!');
             
-            try {
-                const response = await fetch(myScriptUrl, {
-                    method: "POST",
-                    body: JSON.stringify({
-                        userId: profile.userId,
-                        realName: n, 
-                        organization: o, 
-                        barcode: barcode
-                    })
-                });
-                const res = await response.text();
-
-                if (res.toUpperCase().includes("SUCCESS")) {
-                    // วาร์ปมาหน้า Success พร้อมรูปโลโก้เดิมๆ
-                    document.getElementById('scan-page').style.display = 'none';
-                    document.getElementById('success-page').style.display = 'flex';
-                } else if (res.toUpperCase().includes("DUPLICATE")) {
-                    alert("❌ บาร์โค้ดนี้ถูกสแกนไปแล้วครับ!");
-                    location.reload();
-                }
-            } catch (e) { 
-                alert("การส่งข้อมูลขัดข้อง"); 
-                location.reload();
-            }
+            // หลังจากลงทะเบียนเสร็จ ให้เด้งไปหน้า My Point
+            window.location.href = "mypoint.html";
         }
-        main();
     </script>
 </body>
 </html>
