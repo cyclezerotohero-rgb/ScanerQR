@@ -3,8 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cycle Member - ลงทะเบียน</title>
+    <title>ลงทะเบียน Cycle Member</title>
     <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;700&display=swap" rel="stylesheet">
+    <script>
+        // --- ส่วนตรวจสอบสถานะการลงทะเบียน ---
+        const savedId = localStorage.getItem('cycle_user_id');
+        if (savedId) {
+            window.location.href = "scan.html"; // ถ้าเคยลงทะเบียนแล้ว ให้ไปหน้าสแกนทันที
+        }
+    </script>
     <style>
         body { margin: 0; padding: 0; font-family: 'Kanit', sans-serif; background-color: #285B48; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
         .container { width: 100%; max-width: 400px; padding: 20px; text-align: center; }
@@ -13,9 +20,7 @@
         .form-group { margin-bottom: 15px; text-align: left; }
         label { display: block; color: #ffffff; margin-bottom: 5px; font-size: 0.9rem; }
         input, select { width: 100%; height: 50px; padding: 0 15px; border-radius: 12px; border: none; box-sizing: border-box; font-family: 'Kanit', sans-serif; font-size: 1rem; background-color: #ffffff; }
-        select { background-image: url("data:image/svg+xml;..."); background-repeat: no-repeat; background-position: right 15px center; background-size: 18px; appearance: none; }
         .btn-submit { width: 100%; padding: 15px; background-color: #FFD700; color: #285B48; border: none; border-radius: 12px; font-size: 1.2rem; font-weight: 700; cursor: pointer; margin-top: 20px; box-shadow: 0 5px 0 #c7a800; }
-        .btn-submit:disabled { background-color: #ccc; box-shadow: none; }
     </style>
 </head>
 <body>
@@ -38,31 +43,21 @@
     <script>
         const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwqKcqgRqDfgx-EnYYS7V9dhMenlmqVeTfexTEyPkXpZnWTBjjLWjz5_AmL0kyna28X/exec";
 
-        // ล็อกฟอร์แมตวันเกิด
-        const birthInput = document.getElementById('birthdate');
-        birthInput.addEventListener('input', function(e) {
-            let v = e.target.value.replace(/\D/g, '');
-            let f = "";
-            if (v.length > 0) { let d = v.substring(0, 2); if (parseInt(d) > 31) d = "31"; f = d; }
-            if (v.length > 2) { let m = v.substring(2, 4); if (parseInt(m) > 12) m = "12"; f += "/" + m; }
-            if (v.length > 4) f += "/25" + v.substring(4, 6);
-            e.target.value = f;
-        });
-
         async function sendData() {
             const btn = document.getElementById('submitBtn');
-            const myId = "USR-" + Date.now(); // สร้าง ID เฉพาะตัว
+            const nick = document.getElementById('nickname').value.trim();
+            const myId = "USR-" + Date.now(); 
             
             const data = {
                 action: "register",
                 lineId: myId,
                 fullname: document.getElementById('fullname').value.trim(),
-                nickname: document.getElementById('nickname').value.trim(),
+                nickname: nick,
                 birthdate: document.getElementById('birthdate').value.trim(),
                 dept: document.getElementById('organization').value
             };
 
-            if(!data.fullname || !data.nickname || !data.birthdate || !data.dept) {
+            if(!data.fullname || !nick || !data.birthdate || !data.dept) {
                 alert('กรุณากรอกข้อมูลให้ครบนะครับ'); return;
             }
 
@@ -71,7 +66,9 @@
 
             try {
                 await fetch(WEB_APP_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(data) });
-                localStorage.setItem('cycle_user_id', myId); // จำ ID ไว้ในเครื่องนี้
+                // บันทึก ID และ ชื่อเล่น ลงในเครื่อง
+                localStorage.setItem('cycle_user_id', myId);
+                localStorage.setItem('cycle_user_name', nick);
                 alert('ลงทะเบียนสำเร็จ!');
                 window.location.href = "scan.html";
             } catch (err) { alert('เกิดข้อผิดพลาด'); btn.disabled = false; }
