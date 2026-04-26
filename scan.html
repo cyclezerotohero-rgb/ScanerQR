@@ -33,36 +33,55 @@
     </div>
 
     <script>
-        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwqKcqgRqDfgx-EnYYS7V9dhMenlmqVeTfexTEyPkXpZnWTBjjLWjz5_AmL0kyna28X/exec";
-        let scannedItems = [];
-        let isScanning = true;
+    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwqKcqgRqDfgx-EnYYS7V9dhMenlmqVeTfexTEyPkXpZnWTBjjLWjz5_AmL0kyna28X/exec";
+    let scannedItems = [];
+    let isScanning = true;
+    let html5QrCode; // ประกาศตัวแปรไว้ข้างนอก
 
-        function onScanSuccess(decodedText) {
-            if (!isScanning || scannedItems.includes(decodedText)) return;
-            scannedItems.push(decodedText);
-            document.getElementById('status').innerText = "✅ อ่านสำเร็จ: " + decodedText;
-            document.getElementById('count-num').innerText = scannedItems.length;
-            const item = document.createElement('div');
-            item.innerHTML = `✓ ${decodedText}`;
-            document.getElementById('history-list').prepend(item);
-            isScanning = false;
-        }
+    // 1. ฟังก์ชันทำงานเมื่อสแกนสำเร็จ
+    function onScanSuccess(decodedText) {
+        if (!isScanning || scannedItems.includes(decodedText)) return;
+        
+        scannedItems.push(decodedText);
+        document.getElementById('status').innerText = "✅ อ่านสำเร็จ: " + decodedText;
+        document.getElementById('count-num').innerText = scannedItems.length;
+        
+        const item = document.createElement('div');
+        item.className = 'scan-item';
+        item.innerHTML = `✓ รหัส: ${decodedText}`;
+        document.getElementById('history-list').prepend(item);
+        
+        isScanning = false; // หยุดรอให้กด "สแกนเพิ่ม"
+    }
 
-        function resumeScan() { isScanning = true; document.getElementById('status').innerText = "กำลังรออ่านต่อไป..."; }
+    // 2. ฟังก์ชันเริ่มการทำงานของกล้องทันที (บังคับกล้องหลัง)
+    function startCamera() {
+        html5QrCode = new Html5Qrcode("reader");
+        const config = { fps: 10, qrbox: { width: 250, height: 150 } };
 
-        async function confirmData() {
-            const userId = localStorage.getItem('cycle_user_id') || "GUEST";
-            if (scannedItems.length === 0) return alert("ยังไม่ได้สแกนเลยครับ");
-            
-            const btn = document.getElementById('confirmBtn');
-            btn.disabled = true;
-            btn.innerText = "กำลังบันทึกแต้ม...";
+        // บังคับใช้กล้องหลัง (environment) และเริ่มสแกนทันที
+        html5QrCode.start(
+            { facingMode: "environment" }, 
+            config, 
+            onScanSuccess
+        ).catch(err => {
+            // ถ้าเปิดไม่ได้ (เช่น ผู้ใช้ไม่อนุญาต) ให้แจ้งเตือน
+            document.getElementById('status').innerText = "❌ กรุณาอนุญาตให้เข้าถึงกล้อง";
+            console.error(err);
+        });
+    }
 
-            const data = {
-                action: "scan",
-                lineId: userId,
-                bottleCount: scannedItems.length,
-                bottleIds: scannedItems
+    // 3. ฟังก์ชันสแกนต่อ
+    function resumeScan() {
+        isScanning = true;
+        document.getElementById('status').innerText = "กำลังรออ่านบาร์โค้ดต่อไป...";
+    }
+
+    // เรียกใช้งานกล้องทันทีที่โหลดหน้าเว็บ
+    window.onload = startCamera;
+
+    // ... ฟังก์ชัน confirmData เหมือนเดิม ...
+</script>
             };
 
             try {
