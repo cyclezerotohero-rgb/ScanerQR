@@ -6,41 +6,42 @@
     <title>My Point - CYCLE</title>
     <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;700&display=swap" rel="stylesheet">
     <style>
-        body { margin: 0; padding: 0; font-family: 'Kanit', sans-serif; background-color: #285B48; color: white; display: flex; flex-direction: column; align-items: center; }
-        .header-point { margin-top: 20px; align-self: flex-end; margin-right: 20px; font-size: 1rem; }
-        .header-point span { color: #FFD700; font-weight: bold; font-size: 1.2rem; }
+        body { margin: 0; padding: 0; font-family: 'Kanit', sans-serif; background-color: #1a3a2e; color: white; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
+        
+        .header-point { align-self: flex-end; margin: 20px 30px 0 0; font-size: 1.1rem; }
+        .header-point span { color: #FFD700; font-weight: bold; font-size: 1.5rem; }
 
-        /* บัตรสมาชิก */
-        .member-card {
+        /* บัตรสมาชิกใบใหม่ */
+        .card-container {
             position: relative;
-            width: 350px;
-            height: 220px;
-            margin-top: 20px;
-            background-image: url('CARD_BG.png'); /* พี่นำภาพบัตรมาตั้งชื่อนี้ หรือเปลี่ยน URL นะครับ */
-            background-size: cover;
-            border-radius: 15px;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
-            color: white;
-            padding: 20px;
-            box-sizing: border-box;
+            width: 380px;
+            height: 240px;
+            margin-top: 30px;
+            background-image: url('card.jpg'); /* ใช้ไฟล์ card.jpg ของพี่ */
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
         }
 
         /* วางตำแหน่งข้อมูลบนบัตร */
-        .card-id { position: absolute; top: 93px; left: 165px; color: #285B48; font-weight: bold; font-size: 0.9rem; }
-        .card-name { position: absolute; top: 115px; left: 145px; font-size: 0.85rem; }
-        .card-date { position: absolute; top: 135px; left: 145px; font-size: 0.85rem; }
-        .card-dept { position: absolute; top: 155px; left: 145px; font-size: 0.85rem; }
-        .card-nickname { position: absolute; top: 150px; left: 45px; font-size: 0.8rem; font-weight: bold; color: #fff; }
+        .info-text { position: absolute; color: white; font-size: 0.85rem; font-weight: 400; }
+        
+        #display-id { top: 108px; left: 190px; color: #1a3a2e; font-weight: bold; font-size: 0.95rem; } /* ช่อง ID สีขาว */
+        #display-name { top: 132px; left: 170px; } /* หลัง NAME : */
+        #display-date { top: 154px; left: 170px; } /* หลัง DATE : */
+        #display-dept { top: 176px; left: 170px; } /* หลัง Dept : */
+        #display-nickname { top: 162px; left: 45px; font-weight: bold; font-size: 1.1rem; color: #ffffff; text-align: center; width: 60px; } /* กลางฟันหนู */
 
         .btn-exchange {
-            margin-top: 40px;
+            margin-top: 50px;
             background: white;
-            color: #285B48;
-            padding: 10px 40px;
-            border-radius: 15px;
+            color: #1a3a2e;
+            padding: 12px 60px;
+            border-radius: 20px;
             text-decoration: none;
             font-weight: bold;
-            box-shadow: 0 4px 0 #ddd;
+            font-size: 1.1rem;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
         }
     </style>
 </head>
@@ -50,33 +51,26 @@
         แต้มของคุณ: <span id="current-points">0</span> พอยท์
     </div>
 
-    <div class="member-card">
-        <div class="card-id" id="display-id"></div>
-        <div class="card-name" id="display-name"></div>
-        <div class="card-date" id="display-date"></div>
-        <div class="card-dept" id="display-dept"></div>
-        <div class="card-nickname" id="display-nickname"></div>
+    <div class="card-container">
+        <div class="info-text" id="display-id"></div>
+        <div class="info-text" id="display-name"></div>
+        <div class="info-text" id="display-date"></div>
+        <div class="info-text" id="display-dept"></div>
+        <div class="info-text" id="display-nickname"></div>
     </div>
 
     <a href="#" class="btn-exchange">แลกพอยท์</a>
 
     <script>
         window.onload = function() {
-            // ดึงข้อมูลจากเครื่อง
-            const userId = localStorage.getItem('cycle_user_id') || "-";
-            const fullName = localStorage.getItem('cycle_user_fullname') || "-";
-            const nickName = localStorage.getItem('cycle_user_nickname') || "-";
-            const birthDate = localStorage.getItem('cycle_user_birthdate') || "-";
-            const dept = localStorage.getItem('cycle_user_dept') || "-";
-
-            // เอาข้อมูลไปวางในบัตร
-            document.getElementById('display-id').innerText = userId;
-            document.getElementById('display-name').innerText = fullName;
-            document.getElementById('display-nickname').innerText = `"${nickName}"`;
-            document.getElementById('display-date').innerText = birthDate;
-            document.getElementById('display-dept').innerText = dept;
+            // ดึงข้อมูลที่เก็บไว้ตอนลงทะเบียนมาโชว์
+            document.getElementById('display-id').innerText = localStorage.getItem('cycle_user_id') || "";
+            document.getElementById('display-name').innerText = localStorage.getItem('cycle_user_fullname') || "";
+            document.getElementById('display-date').innerText = localStorage.getItem('cycle_user_birthdate') || "";
+            document.getElementById('display-dept').innerText = localStorage.getItem('cycle_user_dept') || "";
             
-            // หมายเหตุ: แต้มอาจจะต้องดึงจาก Google Sheet เดี๋ยวสเต็ปหน้าผมพาทำระบบดึงแต้มเรียลไทม์ครับ
+            const nickname = localStorage.getItem('cycle_user_nickname') || "";
+            document.getElementById('display-nickname').innerText = nickname;
         };
     </script>
 </body>
