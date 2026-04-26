@@ -12,8 +12,45 @@
         h2 { color: #ffffff; margin-bottom: 25px; font-weight: 400; }
         .form-group { margin-bottom: 15px; text-align: left; }
         label { display: block; color: #ffffff; margin-bottom: 5px; font-size: 0.9rem; }
-        input, select { width: 100%; padding: 12px; border-radius: 10px; border: none; box-sizing: border-box; font-family: 'Kanit', sans-serif; font-size: 1rem; background-color: #ffffff; }
-        .btn-submit { width: 100%; padding: 15px; background-color: #FFD700; color: #285B48; border: none; border-radius: 12px; font-size: 1.2rem; font-weight: 700; cursor: pointer; margin-top: 20px; box-shadow: 0 5px 0 #c7a800; }
+        
+        /* ปรับแต่ง input และ select ให้ใหญ่เท่ากัน */
+        input, select { 
+            width: 100%; 
+            height: 50px; /* เพิ่มความสูงให้ดูเต็ม */
+            padding: 0 15px; 
+            border-radius: 12px; 
+            border: none; 
+            box-sizing: border-box; 
+            font-family: 'Kanit', sans-serif; 
+            font-size: 1rem; 
+            background-color: #ffffff;
+            appearance: none; /* ลบสไตล์ดั้งเดิมของ browser ออกบางส่วน */
+            -webkit-appearance: none;
+        }
+
+        /* เพิ่มลูกศรให้ช่อง select เพราะเราใช้ appearance: none */
+        select {
+            background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%23333%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpolyline%20points%3D%226%209%2012%2015%2018%209%22%3E%3C/polyline%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 15px center;
+            background-size: 18px;
+        }
+
+        .btn-submit { 
+            width: 100%; 
+            padding: 15px; 
+            background-color: #FFD700; 
+            color: #285B48; 
+            border: none; 
+            border-radius: 12px; 
+            font-size: 1.2rem; 
+            font-weight: 700; 
+            cursor: pointer; 
+            margin-top: 20px; 
+            box-shadow: 0 5px 0 #c7a800; 
+            transition: 0.2s;
+        }
+        .btn-submit:active { transform: translateY(3px); box-shadow: 0 2px 0 #c7a800; }
         .btn-submit:disabled { background-color: #ccc; box-shadow: none; cursor: not-allowed; }
     </style>
 </head>
@@ -24,7 +61,7 @@
         <h2>ลงทะเบียนสมาชิก</h2>
 
         <div class="form-group">
-            <label>ชื่อ-นามสกุล</label>
+            <label>พิมพ์ชื่อจริงและนามสกุลของท่าน</label>
             <input type="text" id="fullname" placeholder="สมชาย รักโลก">
         </div>
 
@@ -39,9 +76,9 @@
         </div>
 
         <div class="form-group">
-            <label>องค์กร/โรงเรียน</label>
+            <label>องค์กร/โรงเรียนของท่าน</label>
             <select id="organization">
-                <option value="" disabled selected>-- เลือกโรงเรียน --</option>
+                <option value="" disabled selected>-- คลิกเพื่อเลือกโรงเรียน --</option>
                 <option value="โรงเรียนสารสาสน์วิเทศเชียงใหม่">โรงเรียนสารสาสน์วิเทศเชียงใหม่</option>
             </select>
         </div>
@@ -49,28 +86,11 @@
         <button class="btn-submit" id="submitBtn" onclick="sendData()">ลงทะเบียน</button>
     </div>
 
-    <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
     <script>
-        // *** แก้ไข 2 จุดนี้ ***
+        // ใส่ URL ที่ได้จาก Google Apps Script ของพี่
         const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbw07P02reftfroKb9gnt4R-4rPkMXaCFGwEueQ5YCSHaEZL6DWc0sKt14tYcsCKS-40/exec"; 
-        const MY_LIFF_ID = "https://liff.line.me/2009856940-tyxcN1rB"; 
 
-        let userId = "";
-
-        async function initLiff() {
-            try {
-                await liff.init({ liffId: MY_LIFF_ID });
-                if (liff.isLoggedIn()) {
-                    const profile = await liff.getProfile();
-                    userId = profile.userId;
-                } else {
-                    liff.login();
-                }
-            } catch (e) { console.error(e); }
-        }
-        initLiff();
-
-        // ล็อกฟอร์แมตวันเกิด
+        // ระบบล็อกฟอร์แมตวันเกิด (เหมือนเดิม)
         const birthInput = document.getElementById('birthdate');
         birthInput.addEventListener('input', function(e) {
             let v = e.target.value.replace(/\D/g, '');
@@ -78,11 +98,13 @@
             if (v.length > 0) {
                 let d = v.substring(0, 2);
                 if (d.length === 2 && parseInt(d) > 31) d = "31";
+                if (d.length === 2 && parseInt(d) === 0) d = "01";
                 f = d;
             }
             if (v.length > 2) {
                 let m = v.substring(2, 4);
                 if (m.length === 2 && parseInt(m) > 12) m = "12";
+                if (m.length === 2 && parseInt(m) === 0) m = "01";
                 f += "/" + m;
             }
             if (v.length > 4) f += "/25" + v.substring(4, 6);
@@ -91,16 +113,18 @@
 
         async function sendData() {
             const btn = document.getElementById('submitBtn');
+            const orgSelect = document.getElementById('organization');
+            
             const data = {
-                lineId: userId,
+                lineId: "MEMBER-ID-" + Math.floor(Math.random() * 10000), // สร้าง ID จำลองแทน LINE
                 fullname: document.getElementById('fullname').value.trim(),
                 nickname: document.getElementById('nickname').value.trim(),
                 birthdate: document.getElementById('birthdate').value.trim(),
-                dept: document.getElementById('organization').value
+                dept: orgSelect.value // ดึงค่าจาก Select
             };
 
             if(!data.fullname || !data.nickname || !data.birthdate || !data.dept) {
-                alert('กรุณากรอกข้อมูลให้ครบถ้วนนะครับ');
+                alert('กรุณากรอกข้อมูลและเลือกโรงเรียนให้ครบนะครับ');
                 return;
             }
 
@@ -108,12 +132,15 @@
             btn.innerText = "กำลังบันทึก...";
 
             try {
+                // ส่งข้อมูลไป Google Sheets
                 await fetch(WEB_APP_URL, {
                     method: 'POST',
                     mode: 'no-cors',
                     body: JSON.stringify(data)
                 });
+                
                 alert('ลงทะเบียนสำเร็จ!');
+                // ไปหน้าถัดไป
                 window.location.href = "mypoint.html";
             } catch (err) {
                 alert('เกิดข้อผิดพลาด ลองใหม่อีกครั้ง');
