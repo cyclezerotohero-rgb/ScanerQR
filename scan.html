@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="th">
 <head>
@@ -10,121 +9,70 @@
     <style>
         body { margin: 0; padding: 0; font-family: 'Kanit', sans-serif; background-color: #285B48; color: white; text-align: center; }
         .container { padding: 20px; max-width: 500px; margin: auto; }
-        .logo-top { width: 150px; margin-top: 20px; margin-bottom: 10px; }
-        
-        /* ช่องสแกน */
-        #reader { width: 100%; border-radius: 20px; overflow: hidden; border: 4px solid #FFD700; background: black; margin-bottom: 15px; }
-        
-        .status-text { font-size: 1.1rem; margin: 15px 0; color: #FFD700; height: 1.5em; }
-        
-        .reset-link { color: white; text-decoration: underline; font-size: 0.8rem; cursor: pointer; display: block; margin-bottom: 20px; opacity: 0.8; }
-        
-        /* ปุ่มกดยาวๆ */
-        .btn { width: 100%; padding: 15px; border-radius: 12px; font-size: 1.2rem; font-weight: 700; cursor: pointer; border: none; margin-bottom: 10px; display: block; }
-        .btn-yellow { background-color: #FFD700; color: #285B48; box-shadow: 0 4px 0 #c7a800; }
-        .btn-green { background-color: #4CAF50; color: white; box-shadow: 0 4px 0 #2e6b31; }
-        
-        /* รายการที่สแกนแล้ว */
-        .scan-history { background: rgba(255,255,255,0.1); border-radius: 15px; padding: 15px; margin-top: 20px; text-align: left; }
-        .scan-item { display: flex; align-items: center; margin-bottom: 8px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 5px; }
-        .check-icon { color: #4CAF50; margin-right: 10px; font-weight: bold; }
+        .logo-top { width: 150px; margin-top: 20px; }
+        #reader { width: 100%; border-radius: 20px; overflow: hidden; border: 4px solid #FFD700; background: black; margin: 15px 0; }
+        .status-text { font-size: 1.1rem; margin: 15px 0; color: #FFD700; }
+        .btn { width: 100%; padding: 15px; border-radius: 12px; font-size: 1.2rem; font-weight: 700; cursor: pointer; border: none; margin-bottom: 10px; }
+        .btn-yellow { background-color: #FFD700; color: #285B48; }
+        .btn-green { background-color: #4CAF50; color: white; }
+        .scan-history { background: rgba(255,255,255,0.1); border-radius: 15px; padding: 15px; text-align: left; }
     </style>
 </head>
 <body>
-
     <div class="container">
-        <img src="CYCLE.png" alt="Cycle Logo" class="logo-top">
-        <p style="margin-top: 0; opacity: 0.9;">แสนบาร์โค้ดที่ขวดน้ำ</p>
-
+        <img src="CYCLE.png" alt="Logo" class="logo-top">
         <div id="reader"></div>
-
         <div class="status-text" id="status">รอการสแกน...</div>
-
-        <span class="reset-link" onclick="location.reload()">รีเซ็ตกล้อง / ล้างค่าใหม่</span>
-
+        <span style="text-decoration: underline; cursor: pointer; font-size: 0.8rem;" onclick="location.reload()">รีเซ็ตกล้อง</span>
         <button class="btn btn-yellow" onclick="resumeScan()">สแกนเพิ่ม</button>
-        <button class="btn btn-green" onclick="confirmData()">ยืนยันข้อมูล (รวม <span id="count-num">0</span> ชิ้น)</button>
-
+        <button class="btn btn-green" id="confirmBtn" onclick="confirmData()">ยืนยันข้อมูล (รวม <span id="count-num">0</span> ชิ้น)</button>
         <div class="scan-history">
-            <p style="margin-top: 0; font-weight: bold; border-bottom: 2px solid #FFD700; display: inline-block;">รายการที่พบแล้ว:</p>
-            <div id="history-list">
-                </div>
+            <p style="border-bottom: 1px solid #FFD700;">รายการที่พบ:</p>
+            <div id="history-list"></div>
         </div>
     </div>
 
     <script>
+        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwqKcqgRqDfgx-EnYYS7V9dhMenlmqVeTfexTEyPkXpZnWTBjjLWjz5_AmL0kyna28X/exec";
         let scannedItems = [];
         let isScanning = true;
 
-        function onScanSuccess(decodedText, decodedResult) {
-            if (!isScanning) return; // ป้องกันสแกนซ้ำตอนหยุดรอ
-
-            // ตรวจสอบว่าซ้ำไหม (ถ้าอยากให้สแกนขวดเดิมซ้ำไม่ได้)
-            if (scannedItems.includes(decodedText)) {
-                document.getElementById('status').innerText = "❌ บาร์โค้ดนี้สแกนไปแล้ว";
-                return;
-            }
-
-            // เพิ่มข้อมูลใน List
+        function onScanSuccess(decodedText) {
+            if (!isScanning || scannedItems.includes(decodedText)) return;
             scannedItems.push(decodedText);
-            document.getElementById('status').innerText = "✅ อ่านรหัสสำเร็จ: " + decodedText;
+            document.getElementById('status').innerText = "✅ อ่านสำเร็จ: " + decodedText;
             document.getElementById('count-num').innerText = scannedItems.length;
-
-            // เพิ่มรายการลงในประวัติข้างล่าง
-            const list = document.getElementById('history-list');
             const item = document.createElement('div');
-            item.className = 'scan-item';
-            item.innerHTML = `<span class="check-icon">✓</span> รหัส: ${decodedText}`;
-            list.prepend(item);
-
-            // หยุดสแกนชั่วคราวเพื่อให้กดยืนยันหรือสแกนต่อ
+            item.innerHTML = `✓ ${decodedText}`;
+            document.getElementById('history-list').prepend(item);
             isScanning = false;
         }
 
-        function resumeScan() {
-            isScanning = true;
-            document.getElementById('status').innerText = "กำลังรออ่านบาร์โค้ดต่อไป...";
-        }
+        function resumeScan() { isScanning = true; document.getElementById('status').innerText = "กำลังรออ่านต่อไป..."; }
 
         async function confirmData() {
-    const btn = document.querySelector('.btn-green');
-    
-    // ดึงรหัสสมาชิกจากที่ไหนสักแห่ง (เช่น จากการ login หรือใส่ไว้ใน URL)
-    // เบื้องต้นสมมติว่าเป็นสมาชิกคนล่าสุดก่อนนะครับ
-    const data = {
-        action: "scan", // <<-- บอกระบบว่านี่คือการสแกนขวด
-        lineId: "MEMBER-ID-XXXX", // ตรงนี้ต้องเป็น ID จริงของสมาชิก
-        bottleCount: scannedItems.length,
-        bottleIds: scannedItems
-    };
-
-    btn.disabled = true;
-    btn.innerText = "กำลังบันทึกแต้ม...";
-
-    try {
-        await fetch(WEB_APP_URL, {
-            method: 'POST',
-            mode: 'no-cors',
-            body: JSON.stringify(data)
-        });
-        alert('บันทึกแต้มสำเร็จ! รวมทั้งหมด ' + scannedItems.length + ' ขวด');
-        window.location.href = "mypoint.html";
-    } catch (err) {
-        alert('เกิดข้อผิดพลาด');
-        btn.disabled = false;
-    }
-}
-            }
+            const userId = localStorage.getItem('cycle_user_id') || "GUEST";
+            if (scannedItems.length === 0) return alert("ยังไม่ได้สแกนเลยครับ");
             
-            // ส่งข้อมูลไป Sheet (เดี๋ยวเราไปเขียน Web App รับค่าเป็น Array ของรหัส)
-            alert("ส่งข้อมูลทั้งหมด " + scannedItems.length + " รายการเรียบร้อย!");
-            // window.location.href = "mypoint.html";
+            const btn = document.getElementById('confirmBtn');
+            btn.disabled = true;
+            btn.innerText = "กำลังบันทึกแต้ม...";
+
+            const data = {
+                action: "scan",
+                lineId: userId,
+                bottleCount: scannedItems.length,
+                bottleIds: scannedItems
+            };
+
+            try {
+                await fetch(WEB_APP_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(data) });
+                alert('บันทึกสำเร็จ ' + scannedItems.length + ' ขวด');
+                location.reload(); // ล้างค่าเพื่อเริ่มใหม่
+            } catch (err) { alert('ผิดพลาด'); btn.disabled = false; }
         }
 
-        // เริ่มต้นกล้อง
-        let html5QrcodeScanner = new Html5QrcodeScanner(
-            "reader", { fps: 15, qrbox: {width: 250, height: 150} }
-        );
+        let html5QrcodeScanner = new Html5QrcodeScanner("reader", { fps: 10, qrbox: 250 });
         html5QrcodeScanner.render(onScanSuccess);
     </script>
 </body>
