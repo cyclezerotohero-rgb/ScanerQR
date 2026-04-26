@@ -3,85 +3,116 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ลงทะเบียน Cycle Member</title>
+    <title>ลงทะเบียน - CYCLE</title>
     <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;700&display=swap" rel="stylesheet">
-    <script>
-        // --- ส่วนตรวจสอบสถานะการลงทะเบียน ---
-        const savedId = localStorage.getItem('cycle_user_id');
-        if (savedId) {
-            window.location.href = "scan.html"; // ถ้าเคยลงทะเบียนแล้ว ให้ไปหน้าสแกนทันที
-        }
-    </script>
     <style>
-        body { margin: 0; padding: 0; font-family: 'Kanit', sans-serif; background-color: #285B48; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
-        .container { width: 100%; max-width: 400px; padding: 20px; text-align: center; }
-        .logo-main { width: 180px; margin-bottom: 10px; }
-        h2 { color: #ffffff; margin-bottom: 25px; font-weight: 400; }
-        .form-group { margin-bottom: 15px; text-align: left; }
-        label { display: block; color: #ffffff; margin-bottom: 5px; font-size: 0.9rem; }
-        input, select { width: 100%; height: 50px; padding: 0 15px; border-radius: 12px; border: none; box-sizing: border-box; font-family: 'Kanit', sans-serif; font-size: 1rem; background-color: #ffffff; }
-        .btn-submit { width: 100%; padding: 15px; background-color: #FFD700; color: #285B48; border: none; border-radius: 12px; font-size: 1.2rem; font-weight: 700; cursor: pointer; margin-top: 20px; box-shadow: 0 5px 0 #c7a800; }
+        body { margin: 0; padding: 0; font-family: 'Kanit', sans-serif; background-color: #285B48; color: white; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
+        .container { width: 90%; max-width: 400px; padding: 20px; text-align: center; }
+        .logo { width: 120px; margin-bottom: 20px; }
+        h2 { margin-bottom: 20px; font-weight: 700; }
+        
+        .form-group { text-align: left; margin-bottom: 15px; width: 100%; }
+        label { display: block; margin-bottom: 5px; font-size: 0.9rem; }
+        input, select { width: 100%; padding: 12px; border-radius: 10px; border: none; font-family: 'Kanit'; box-sizing: border-box; }
+        
+        .btn-submit { width: 100%; padding: 15px; border-radius: 15px; background-color: #FFD700; color: #285B48; border: none; font-size: 1.2rem; font-weight: 700; cursor: pointer; margin-top: 10px; box-shadow: 0 4px 0 #c7a800; }
+        .btn-submit:active { transform: translateY(4px); box-shadow: none; }
+        .btn-submit:disabled { background-color: #ccc; box-shadow: none; }
     </style>
 </head>
 <body>
-    <div class="container">
-        <img src="CYCLE.png" alt="Cycle Logo" class="logo-main">
-        <h2>ลงทะเบียนสมาชิก</h2>
-        <div class="form-group"><label>ชื่อ-นามสกุล</label><input type="text" id="fullname" placeholder="สมชาย รักโลก"></div>
-        <div class="form-group"><label>ชื่อเล่น</label><input type="text" id="nickname" placeholder="ต้น"></div>
-        <div class="form-group"><label>วันเกิด (วว/ดด/25xx)</label><input type="text" id="birthdate" placeholder="วว/ดด/25xx" maxlength="10"></div>
-        <div class="form-group">
-            <label>องค์กร/โรงเรียน</label>
-            <select id="organization">
-                <option value="" disabled selected>-- คลิกเพื่อเลือก --</option>
-                <option value="โรงเรียนสารสาสน์วิเทศเชียงใหม่">โรงเรียนสารสาสน์วิเทศเชียงใหม่</option>
-            </select>
-        </div>
-        <button class="btn-submit" id="submitBtn" onclick="sendData()">ลงทะเบียน</button>
+
+<div class="container">
+    <img src="CYCLE.png" alt="Logo" class="logo">
+    <h2>ลงทะเบียนสมาชิก</h2>
+    
+    <div class="form-group">
+        <label>ชื่อ-นามสกุล</label>
+        <input type="text" id="fullname" placeholder="ระบุชื่อและนามสกุล">
+    </div>
+    
+    <div class="form-group">
+        <label>ชื่อเล่น</label>
+        <input type="text" id="nickname" placeholder="ระบุชื่อเล่น">
+    </div>
+    
+    <div class="form-group">
+        <label>วันเกิด</label>
+        <input type="date" id="birthdate">
+    </div>
+    
+    <div class="form-group">
+        <label>หน่วยงาน/แผนก</label>
+        <select id="dept">
+            <option value="">เลือกหน่วยงาน</option>
+            <option value="IT">IT</option>
+            <option value="HR">HR</option>
+            <option value="Production">Production</option>
+            <option value="Sales">Sales</option>
+        </select>
     </div>
 
-    <script>
-        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwsMkiz80Yg7Mfz8Xn_Z4YfeEIUIJ8Y7edd44ojaGzlI7gbQVtvBzNhnJuQ2m_4K_xk/exec";
+    <button class="btn-submit" id="regBtn" onclick="register()">ลงทะเบียน</button>
+</div>
 
-        async function sendData() {
-            const btn = document.getElementById('submitBtn');
-            const nick = document.getElementById('nickname').value.trim();
-            const myId = "USR-" + Date.now(); 
+<script>
+    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwsMkiz80Yg7Mfz8Xn_Z4YfeEIUIJ8Y7edd44ojaGzlI7gbQVtvBzNhnJuQ2m_4K_xk/exec";
+
+    async mystery_register() {
+        // (ฟังก์ชันนี้ใช้สร้าง Member ID สุ่มแบบง่ายๆ หรือพี่จะใช้ระบบอื่นก็ได้)
+        return "MB" + Math.floor(1000 + Math.random() * 9000);
+    }
+
+    async function register() {
+        const btn = document.getElementById('regBtn');
+        const fullname = document.getElementById('fullname').value;
+        const nickname = document.getElementById('nickname').value;
+        const birthdate = document.getElementById('birthdate').value;
+        const dept = document.getElementById('dept').value;
+
+        if (!fullname || !nickname || !birthdate || !dept) {
+            alert("กรุณากรอกข้อมูลให้ครบถ้วนครับ");
+            return;
+        }
+
+        btn.disabled = true;
+        btn.innerText = "กำลังบันทึก...";
+
+        const myId = "MB" + Date.now().toString().slice(-6); // สร้าง ID จากเวลาปัจจุบัน
+
+        const data = {
+            action: "register",
+            lineId: myId,
+            fullname: fullname,
+            nickname: nickname,
+            birthdate: birthdate,
+            dept: dept
+        };
+
+        try {
+            await fetch(WEB_APP_URL, { 
+                method: 'POST', 
+                mode: 'no-cors', 
+                body: JSON.stringify(data) 
+            });
+
+            // *** ส่วนสำคัญที่สุด: สั่งให้เครื่องจำข้อมูลทั้งหมด ***
+            localStorage.setItem('cycle_user_id', myId);
+            localStorage.setItem('cycle_user_fullname', data.fullname);
+            localStorage.setItem('cycle_user_nickname', data.nickname);
+            localStorage.setItem('cycle_user_birthdate', data.birthdate);
+            localStorage.setItem('cycle_user_dept', data.dept);
+
+            alert('ลงทะเบียนสำเร็จ! รหัสของคุณคือ ' + myId);
+            window.location.href = "scan.html"; 
             
-            const data = {
-                action: "register",
-                lineId: myId,
-                fullname: document.getElementById('fullname').value.trim(),
-                nickname: nick,
-                birthdate: document.getElementById('birthdate').value.trim(),
-                dept: document.getElementById('organization').value
-            };
+        } catch (err) {
+            alert('เกิดข้อผิดพลาด: ' + err.message);
+            btn.disabled = false;
+            btn.innerText = "ลงทะเบียน";
+        }
+    }
+</script>
 
-            if(!data.fullname || !nick || !data.birthdate || !data.dept) {
-                alert('กรุณากรอกข้อมูลให้ครบนะครับ'); return;
-            }
-
-            btn.disabled = true;
-            btn.innerText = "กำลังบันทึก...";
-
-           try {
-    await fetch(WEB_APP_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(data) });
-
-    // --- ทับส่วนเดิมด้วย 5 บรรทัดนี้ครับ ---
-   // ใส่ใน index.html ตอนลงทะเบียนสำเร็จ
-localStorage.setItem('cycle_user_id', myId);
-localStorage.setItem('cycle_user_fullname', data.fullname);
-localStorage.setItem('cycle_user_nickname', data.nickname);
-localStorage.setItem('cycle_user_birthdate', data.birthdate);
-localStorage.setItem('cycle_user_dept', data.dept);
-    // ----------------------------------
-
-    alert('ลงทะเบียนสำเร็จ!');
-    window.location.href = "scan.html"; 
-} catch (err) { 
-    alert('เกิดข้อผิดพลาด'); 
-    btn.disabled = false; 
-}
-    </script>
 </body>
 </html>
