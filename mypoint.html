@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Point - CYCLE</title>
-    <link href="https://script.google.com/macros/s/AKfycbxgkcz7HjvAvfnoaVVV0k-BsUwCkUh3hDKb2b3Y-wjtn7Q56D8re9L38TQX3ayuqv5L/exec">
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;700&display=swap" rel="stylesheet">
     <style>
         body { margin: 0; padding: 0; font-family: 'Kanit', sans-serif; background-color: #285B48; color: white; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
         .header-point { align-self: flex-end; margin: 20px 30px 0 0; font-size: 1.1rem; }
@@ -15,13 +15,12 @@
             width: 380px;
             height: 240px;
             margin-top: 30px;
-            background-image: url('card.png'); /* เปลี่ยนเป็น .png ตามที่พี่บอกครับ */
+            background-image: url('card.png');
             background-size: contain;
             background-repeat: no-repeat;
             background-position: center;
         }
 
-        /* ตำแหน่งข้อมูลบนบัตร */
         .info-text { position: absolute; color: white; font-size: 0.85rem; font-weight: 400; }
         #display-id { top: 108px; left: 190px; color: #1a3a2e; font-weight: bold; font-size: 0.95rem; }
         #display-name { top: 132px; left: 170px; }
@@ -43,7 +42,7 @@
     </style>
 </head>
 <body>
-    <div class="header-point">แต้มของคุณ: <span id="current-points">0</span> พอยท์</div>
+    <div class="header-point">แต้มของคุณ: <span id="current-points">...</span> พอยท์</div>
 
     <div class="card-container">
         <div class="info-text" id="display-id"></div>
@@ -56,16 +55,49 @@
     <a href="#" class="btn-exchange">แลกพอยท์</a>
 
     <script>
-        window.onload = function() {
-            // ดึงข้อมูลที่ localStorage จำไว้มาแสดง
+        // ใช้ URL ใหม่ที่พี่ส่งมาครับ
+        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxgkcz7HjvAvfnoaVVV0k-BsUwCkUh3hDKb2b3Y-wjtn7Q56D8re9L38TQX3ayuqv5L/exec";
+
+        async function fetchMemberData() {
+            const userId = localStorage.getItem('cycle_user_id');
+            if (!userId) {
+                alert("ไม่พบรหัสสมาชิก กรุณาลงทะเบียนใหม่");
+                return;
+            }
+
+            try {
+                // ดึงข้อมูลพอยท์และชื่อจากฐานข้อมูลจริง (Google Sheets)
+                const response = await fetch(`${WEB_APP_URL}?action=getMemberData&lineId=${userId}`);
+                const data = await response.json();
+
+                if (data.status === "success") {
+                    document.getElementById('current-points').innerText = data.points || 0;
+                    document.getElementById('display-id').innerText = userId;
+                    document.getElementById('display-name').innerText = data.name || "";
+                    document.getElementById('display-nickname').innerText = data.nickname || "";
+                    document.getElementById('display-dept').innerText = data.dept || "";
+                    // สำหรับวันเกิด ดึงจากเครื่องมาก่อนเพราะตอนสะสมแต้มอาจไม่ได้ดึงวันเกิดมาด้วย
+                    document.getElementById('display-date').innerText = localStorage.getItem('cycle_user_birthdate') || "";
+                } else {
+                    // ถ้าไม่เจอข้อมูลใน Sheet ให้ดึงจากเครื่องชั่วคราว
+                    loadFromLocalStorage();
+                }
+            } catch (err) {
+                console.error("โหลดข้อมูลล้มเหลว:", err);
+                loadFromLocalStorage();
+            }
+        }
+
+        function loadFromLocalStorage() {
             document.getElementById('display-id').innerText = localStorage.getItem('cycle_user_id') || "";
             document.getElementById('display-name').innerText = localStorage.getItem('cycle_user_fullname') || "";
+            document.getElementById('display-nickname').innerText = localStorage.getItem('cycle_user_nickname') || "";
             document.getElementById('display-date').innerText = localStorage.getItem('cycle_user_birthdate') || "";
             document.getElementById('display-dept').innerText = localStorage.getItem('cycle_user_dept') || "";
-            
-            const nickname = localStorage.getItem('cycle_user_nickname') || "";
-            document.getElementById('display-nickname').innerText = nickname;
-        };
+            document.getElementById('current-points').innerText = "0";
+        }
+
+        window.onload = fetchMemberData;
     </script>
 </body>
 </html>
