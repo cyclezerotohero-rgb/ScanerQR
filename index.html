@@ -106,9 +106,9 @@
                     province: province
                 })
             });
-            localStorage.setItem('cycle_user_id', lineId);
-            alert("ลงทะเบียนสำเร็จ!");
-            window.location.href = "scanandpoint.html";
+            // บรรทัดที่พี่ต้องแก้ในไฟล์ index.html
+alert("ลงทะเบียนสำเร็จ!");
+window.location.href = "scanandpoint.html"; // เปลี่ยนจาก home.html เป็นอันนี้ครับ
         } catch (err) {
             alert("บันทึกไม่สำเร็จ ลองอีกครั้งครับ");
         }
