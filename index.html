@@ -12,17 +12,19 @@
         .form-section { padding: 30px 25px; max-width: 450px; margin: auto; display: none; }
         .form-group { margin-bottom: 15px; text-align: left; }
         label { color: white; display: block; margin-bottom: 5px; }
-        input, select { width: 100%; padding: 12px; border-radius: 10px; border: none; box-sizing: border-box; }
-        .btn { width: 100%; padding: 15px; border-radius: 50px; background-color: #FFD700; color: #285B48; border: none; font-size: 1.2rem; font-weight: bold; cursor: pointer; }
+        input, select { width: 100%; padding: 12px; border-radius: 10px; border: none; box-sizing: border-box; font-size: 1rem; }
+        .btn { width: 100%; padding: 15px; border-radius: 50px; background-color: #FFD700; color: #285B48; border: none; font-size: 1.2rem; font-weight: bold; cursor: pointer; margin-top: 10px; }
     </style>
 </head>
 <body>
     <div class="header">
         <img src="cyclepoint.png" style="width:150px;">
-        <div id="loading-text">กำลังตรวจสอบข้อมูลสมาชิก...</div>
+        <div id="loading-text" style="margin-top:10px;">กำลังตรวจสอบข้อมูล...</div>
     </div>
     <div class="form-section" id="register-form">
         <div class="form-group"><label>ชื่อ-นามสกุล</label><input type="text" id="fullname"></div>
+        <div class="form-group"><label>จังหวัด</label><input type="text" id="province" placeholder="ระบุจังหวัด"></div>
+        <div class="form-group"><label>วันเกิด</label><input type="date" id="birthdate"></div>
         <div class="form-group">
             <label>School/Organization</label>
             <select id="school">
@@ -34,20 +36,20 @@
     </div>
 <script>
     const LIFF_ID = "2009955496-jzd8tA0e"; 
-    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwSzdRwt7NSULwyf4LWeh9lHlz5vy8-FPM29MdWfO2CIoueA0usinNYoCQdqQY7A24G/exec";
+    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbx_SkGj1VTNds8f6YbCHb-3-FuX3YDxlieVcV6TQzHREifsh1mpgJOmfP98p0kX8ZQh/exec";
 
     async function init() {
         await liff.init({ liffId: LIFF_ID });
         if (!liff.isLoggedIn()) { liff.login(); }
         else {
             const profile = await liff.getProfile();
+            localStorage.setItem('uid', profile.userId);
             const res = await fetch(`${WEB_APP_URL}?action=checkUser&lineId=${profile.userId}`);
             const data = await res.json();
             if (data.exists) { window.location.href = "scanandpoint.html"; }
             else {
                 document.getElementById('loading-text').style.display = 'none';
                 document.getElementById('register-form').style.display = 'block';
-                localStorage.setItem('uid', profile.userId);
             }
         }
     }
@@ -56,8 +58,11 @@
             action: "register",
             lineId: localStorage.getItem('uid'),
             fullname: document.getElementById('fullname').value,
+            province: document.getElementById('province').value,
+            birthdate: document.getElementById('birthdate').value,
             dept: document.getElementById('school').value
         };
+        if (!payload.fullname || !payload.province || !payload.birthdate) return alert("กรุณากรอกข้อมูลให้ครบถ้วน");
         await fetch(WEB_APP_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
         alert("ลงทะเบียนสำเร็จ!");
         window.location.href = "scanandpoint.html";
