@@ -3,58 +3,115 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Scan & Point</title>
+    <title>Scan & Point - CYCLE POINT</title>
     <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;700&display=swap" rel="stylesheet">
     <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
-    <script src="https://unpkg.com/html5-qrcode"></script> <!-- ตัวช่วยสแกนบนเว็บ -->
+    <script src="https://unpkg.com/html5-qrcode"></script>
     <style>
         body { margin: 0; font-family: 'Kanit', sans-serif; background-color: #285B48; text-align: center; }
-        .header-white { background-color: white; padding: 25px; border-radius: 0 0 35px 35px; }
-        .point-box { background-color: #001f3f; color: white; padding: 10px 25px; border-radius: 50px; display: inline-block; }
-        .scan-card { background-color: #FFD700; padding: 20px; border-radius: 25px; width: 85%; margin: 20px auto; }
-        .input-group { position: relative; margin-bottom: 10px; }
-        input { width: 100%; padding: 12px; border-radius: 10px; border: 2px solid #285B48; box-sizing: border-box; }
-        .cam-btn { position: absolute; right: 5px; top: 5px; background: #285B48; color: white; padding: 7px; border-radius: 8px; cursor: pointer; }
-        #reader { width: 100%; margin-top: 10px; border-radius: 15px; overflow: hidden; display: none; }
+        .header-white { background-color: white; padding: 25px; border-radius: 0 0 35px 35px; margin-bottom: 20px; }
+        .point-box { background-color: #001f3f; color: white; display: inline-flex; align-items: center; padding: 10px 25px; border-radius: 50px; font-size: 1.2rem; }
+        .point-val { color: #FFD700; font-weight: bold; font-size: 1.5rem; margin: 0 10px; }
+        .scan-card { background-color: #FFD700; padding: 20px; border-radius: 25px; width: 90%; max-width: 500px; margin: 0 auto; box-sizing: border-box; }
+        .input-group { position: relative; margin-bottom: 12px; }
+        input { width: 100%; padding: 12px; border-radius: 12px; border: 2px solid #285B48; box-sizing: border-box; font-size: 1rem; }
+        .cam-btn { position: absolute; right: 8px; top: 6px; background: #285B48; color: white; padding: 6px 10px; border-radius: 8px; cursor: pointer; }
+        #reader { width: 100%; border-radius: 15px; overflow: hidden; display: none; margin-bottom: 15px; border: 3px solid #285B48; }
+        .btn-confirm { width: 100%; padding: 15px; border-radius: 50px; background-color: #285B48; color: white; border: none; font-size: 1.2rem; font-weight: bold; cursor: pointer; margin-top: 10px; }
     </style>
 </head>
 <body>
-    <div class="header-white"><div class="point-box">คะแนนของคุณ <span id="pts" style="color:#FFD700">0</span> P</div></div>
+    <div class="header-white">
+        <div class="point-box">คะแนนของคุณ <span id="pts" class="point-val">0</span> P</div>
+    </div>
+
     <div class="scan-card">
         <div id="reader"></div>
+        <p style="color:#285B48; font-weight:bold; margin-top:0;">กดไอคอนกล้องเพื่อสแกนรหัส</p>
+        
         <div class="input-group"><input type="text" id="c1" placeholder="รหัสที่ 1"><span class="cam-btn" onclick="startScan(1)">📷</span></div>
-        <button onclick="submit()" style="margin-top:15px; padding:15px; width:100%; border-radius:50px; background:#285B48; color:white; border:none; font-weight:bold;">ยืนยันรับแต้ม</button>
+        <div class="input-group"><input type="text" id="c2" placeholder="รหัสที่ 2"><span class="cam-btn" onclick="startScan(2)">📷</span></div>
+        <div class="input-group"><input type="text" id="c3" placeholder="รหัสที่ 3"><span class="cam-btn" onclick="startScan(3)">📷</span></div>
+        <div class="input-group"><input type="text" id="c4" placeholder="รหัสที่ 4"><span class="cam-btn" onclick="startScan(4)">📷</span></div>
+        <div class="input-group"><input type="text" id="c5" placeholder="รหัสที่ 5"><span class="cam-btn" onclick="startScan(5)">📷</span></div>
+        
+        <button class="btn-confirm" onclick="submit()">ยืนยันรับแต้ม</button>
     </div>
+
 <script>
     const LIFF_ID = "2009955496-jzd8tA0e";
-    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxPMEdtm2BhEMbgeiM7IIbh5U3CygaoHj_lGM2Xu49EgaJuM1IGvT5ZkrGp7wBjdYH8/exec";
+    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzDZpMjL28IUupmj8ggXEDVNbTyDmdb6p9D_tl_Ha7t8PM6BdZqK_AxPq8ckJHt8ReM/exec";
     let html5QrCode;
 
     async function init() {
         await liff.init({ liffId: LIFF_ID });
+        if (!liff.isLoggedIn()) { liff.login(); return; }
         const profile = await liff.getProfile();
-        const res = await fetch(`${WEB_APP_URL}?action=checkUser&lineId=${profile.userId}`);
+        fetchData(profile.userId);
+    }
+
+    async function fetchData(uid) {
+        const res = await fetch(`${WEB_APP_URL}?action=checkUser&lineId=${uid}`);
         const data = await res.json();
         document.getElementById('pts').innerText = data.points;
     }
 
     function startScan(id) {
+        // ถ้าอยู่ในแอป LINE บนมือถือ ให้ใช้ Scanner ของ LINE
         if (liff.isInClient() && liff.getOS() !== "web") {
-            liff.scanCodeV2().then(r => { document.getElementById('c' + id).value = r.value; });
-        } else {
-            document.getElementById('reader').style.display = 'block';
+            liff.scanCodeV2().then(result => {
+                document.getElementById('c' + id).value = result.value;
+            }).catch(err => console.error(err));
+        } 
+        // ถ้าเปิดผ่านเว็บ (Chrome/Safari) ให้เปิดกล้องบนเว็บ
+        else {
+            const readerDiv = document.getElementById('reader');
+            readerDiv.style.display = 'block';
             if (!html5QrCode) html5QrCode = new Html5Qrcode("reader");
-            html5QrCode.start({ facingMode: "environment" }, { fps: 10, qrbox: 250 }, 
-                txt => { document.getElementById('c' + id).value = txt; html5QrCode.stop(); document.getElementById('reader').style.display = 'none'; });
+
+            html5QrCode.start(
+                { facingMode: "environment" },
+                { fps: 10, qrbox: 250 },
+                txt => {
+                    document.getElementById('c' + id).value = txt;
+                    html5QrCode.stop();
+                    readerDiv.style.display = 'none';
+                }
+            ).catch(err => alert("เปิดกล้องไม่ได้: " + err));
         }
     }
 
     async function submit() {
         const profile = await liff.getProfile();
-        const codes = [document.getElementById('c1').value].filter(v => v);
-        await fetch(WEB_APP_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ action: "addPoints", lineId: profile.userId, codes: codes }) });
-        alert("สะสมแต้มสำเร็จ!"); location.reload();
+        const codes = [
+            document.getElementById('c1').value,
+            document.getElementById('c2').value,
+            document.getElementById('c3').value,
+            document.getElementById('c4').value,
+            document.getElementById('c5').value
+        ].filter(v => v !== "");
+
+        if (codes.length === 0) return alert("กรุณาสแกนรหัสอย่างน้อย 1 รายการ");
+
+        // แสดงสถานะกำลังบันทึก
+        const btn = document.querySelector('.btn-confirm');
+        btn.innerText = "กำลังบันทึก...";
+        btn.disabled = true;
+
+        await fetch(WEB_APP_URL, {
+            method: 'POST',
+            mode: 'no-cors',
+            body: JSON.stringify({
+                action: "addPoints",
+                lineId: profile.userId,
+                codes: codes
+            })
+        });
+
+        alert("สะสมแต้มสำเร็จ!");
+        location.reload();
     }
+
     window.onload = init;
 </script>
 </body>
