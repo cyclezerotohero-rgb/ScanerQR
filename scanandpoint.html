@@ -24,94 +24,50 @@
     <div class="header-white">
         <div class="point-box">Cycle point ของคุณ<span id="pts" class="point-val">0</span> P</div>
     </div>
-
     <div class="scan-card">
         <div id="reader"></div>
-        <p style="color:#285B48; font-weight:bold; margin-top:0;">กดไอคอนกล้องเพื่ออ่าน Barcode </p>
-        
+        <p style="color:#285B48; font-weight:bold; margin-top:0;">กดไอคอนกล้องเพื่ออ่าน Barcode</p>
         <div class="input-group"><input type="text" id="c1" placeholder="รหัสที่ 1"><span class="cam-btn" onclick="startScan(1)">📷</span></div>
         <div class="input-group"><input type="text" id="c2" placeholder="รหัสที่ 2"><span class="cam-btn" onclick="startScan(2)">📷</span></div>
         <div class="input-group"><input type="text" id="c3" placeholder="รหัสที่ 3"><span class="cam-btn" onclick="startScan(3)">📷</span></div>
         <div class="input-group"><input type="text" id="c4" placeholder="รหัสที่ 4"><span class="cam-btn" onclick="startScan(4)">📷</span></div>
         <div class="input-group"><input type="text" id="c5" placeholder="รหัสที่ 5"><span class="cam-btn" onclick="startScan(5)">📷</span></div>
-        
         <button class="btn-confirm" onclick="submit()">ยืนยันรับแต้ม</button>
     </div>
-
 <script>
     const LIFF_ID = "2009955496-jzd8tA0e";
-    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwSzdRwt7NSULwyf4LWeh9lHlz5vy8-FPM29MdWfO2CIoueA0usinNYoCQdqQY7A24G/exec";
+    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbx_SkGj1VTNds8f6YbCHb-3-FuX3YDxlieVcV6TQzHREifsh1mpgJOmfP98p0kX8ZQh/exec";
     let html5QrCode;
 
     async function init() {
         await liff.init({ liffId: LIFF_ID });
         if (!liff.isLoggedIn()) { liff.login(); return; }
         const profile = await liff.getProfile();
-        fetchData(profile.userId);
-    }
-
-    async function fetchData(uid) {
-        const res = await fetch(`${WEB_APP_URL}?action=checkUser&lineId=${uid}`);
+        const res = await fetch(`${WEB_APP_URL}?action=checkUser&lineId=${profile.userId}`);
         const data = await res.json();
         document.getElementById('pts').innerText = data.points;
     }
 
     function startScan(id) {
-        // ถ้าอยู่ในแอป LINE บนมือถือ ให้ใช้ Scanner ของ LINE
         if (liff.isInClient() && liff.getOS() !== "web") {
-            liff.scanCodeV2().then(result => {
-                document.getElementById('c' + id).value = result.value;
-            }).catch(err => console.error(err));
-        } 
-        // ถ้าเปิดผ่านเว็บ (Chrome/Safari) ให้เปิดกล้องบนเว็บ
-        else {
-            const readerDiv = document.getElementById('reader');
-            readerDiv.style.display = 'block';
+            liff.scanCodeV2().then(r => { document.getElementById('c' + id).value = r.value; });
+        } else {
+            const rDiv = document.getElementById('reader');
+            rDiv.style.display = 'block';
             if (!html5QrCode) html5QrCode = new Html5Qrcode("reader");
-
-            html5QrCode.start(
-                { facingMode: "environment" },
-                { fps: 10, qrbox: 250 },
-                txt => {
-                    document.getElementById('c' + id).value = txt;
-                    html5QrCode.stop();
-                    readerDiv.style.display = 'none';
-                }
-            ).catch(err => alert("เปิดกล้องไม่ได้: " + err));
+            html5QrCode.start({ facingMode: "environment" }, { fps: 10, qrbox: 250 }, 
+                t => { document.getElementById('c' + id).value = t; html5QrCode.stop(); rDiv.style.display = 'none'; });
         }
     }
 
     async function submit() {
         const profile = await liff.getProfile();
-        const codes = [
-            document.getElementById('c1').value,
-            document.getElementById('c2').value,
-            document.getElementById('c3').value,
-            document.getElementById('c4').value,
-            document.getElementById('c5').value
-        ].filter(v => v !== "");
-
-        if (codes.length === 0) return alert("กรุณาสแกนรหัสอย่างน้อย 1 รายการ");
-
-        // แสดงสถานะกำลังบันทึก
-        const btn = document.querySelector('.btn-confirm');
-        btn.innerText = "กำลังบันทึก...";
-        btn.disabled = true;
-
-        await fetch(WEB_APP_URL, {
-            method: 'POST',
-            mode: 'no-cors',
-            body: JSON.stringify({
-                action: "addPoints",
-                lineId: profile.userId,
-                codes: codes
-            })
-        });
-
-        alert("สะสมแต้มสำเร็จ!");
-        location.reload();
+        const codes = [1,2,3,4,5].map(i => document.getElementById('c'+i).value).filter(v => v);
+        if (codes.length === 0) return alert("กรุณาสแกนรหัสก่อนครับ");
+        document.querySelector('.btn-confirm').innerText = "กำลังบันทึก...";
+        await fetch(WEB_APP_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ action: "addPoints", lineId: profile.userId, codes: codes }) });
+        alert("สะสมแต้มสำเร็จ!"); location.reload();
     }
-
     window.onload = init;
 </script>
 </body>
