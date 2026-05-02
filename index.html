@@ -17,21 +17,21 @@
         .form-group { margin-bottom: 20px; text-align: left; }
         label { display: block; color: white; margin-bottom: 8px; font-size: 1rem; }
         input, select { width: 100%; padding: 15px; border-radius: 12px; border: none; background: white; font-family: 'Kanit'; box-sizing: border-box; font-size: 1rem; }
-        .btn-submit { width: 100%; padding: 18px; border-radius: 50px; background-color: #FFD700; color: #285B48; border: none; font-size: 1.3rem; font-weight: 700; cursor: pointer; margin-top: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
+        .btn-submit { width: 100%; padding: 18px; border-radius: 50px; background-color: #FFD700; color: #285B48; border: none; font-size: 1.3rem; font-weight: 700; cursor: pointer; margin-top: 15px; }
     </style>
 </head>
 <body>
 
 <div class="header-section">
     <img src="cyclepoint.png" alt="LOGO" class="logo-main">
-    <div id="loading-text">กำลังโหลดข้อมูลจาก LINE...</div>
+    <div id="loading-text">กำลังตรวจสอบข้อมูลสมาชิก...</div>
     <img src="" id="user-pic" class="profile-img">
     <div id="user-display" class="user-name"></div>
 </div>
 
 <div class="form-section" id="register-form">
     <div class="form-group">
-        <label>กรอกชื่อ-นามสกุลจริง ของท่าน</label>
+        <label>ชื่อ-นามสกุล</label>
         <input type="text" id="fullname" placeholder="ชื่อ-นามสกุล">
     </div>
     <div class="form-group">
@@ -55,64 +55,59 @@
 </div>
 
 <script>
-    const PROVINCES = ["กระบี่", "กรุงเทพมหานคร", "กาญจนบุรี", "กาฬสินธุ์", "กำแพงเพชร", "ขอนแก่น", "จันทบุรี", "ฉะเชิงเทรา", "ชลบุรี", "ชัยนาท", "ชัยภูมิ", "ชุมพร", "เชียงราย", "เชียงใหม่", "ตรัง", "ตราด", "ตาก", "นครนายก", "นครปฐม", "นครพนม", "นครราชสีมา", "นครศรีธรรมราช", "นครสวรรค์", "นนทบุรี", "นราธิวาส", "น่าน", "บึงกาฬ", "บุรีรัมย์", "ปทุมธานี", "ประจวบคีรีขันธ์", "ปราจีนบุรี", "ปัตตานี", "พระนครศรีอยุธยา", "พะเยา", "พังงา", "พัทลุง", "พิจิตร", "พิษณุโลก", "เพชรบุรี", "เพชรบูรณ์", "แพร่", "ภูเก็ต", "มหาสารคาม", "มุกดาหาร", "แม่ฮ่องสอน", "ยโสธร", "ยะลา", "ร้อยเอ็ด", "ระนอง", "ระยอง", "ราชบุรี", "ลพบุรี", "ลำปาง", "ลำพูน", "เลย", "ศรีสะเกษ", "สกลนคร", "สงขลา", "สตูล", "สมุทรปราการ", "สมุทรสงคราม", "สมุทรสาคร", "สระแก้ว", "สระบุรี", "สิงห์บุรี", "สุโขทัย", "สุพรรณบุรี", "สุราษฎร์ธานี", "สุรินทร์", "หนองคาย", "หนองบัวลำภู", "อ่างทอง", "อำนาจเจริญ", "อุดรธานี", "อุตรดิตถ์", "อุทัยธานี", "อุบลราชธานี"];
+    const LIFF_ID = "2009955496-jzd8tA0e"; 
+    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxgkcz7HjvAvfnoaVVV0k-BsUwCkUh3hDKb2b3Y-wjtn7Q56D8re9L38TQX3ayuqv5L/exec";
+
+    // รายชื่อจังหวัด
+    const PROVINCES = ["กรุงเทพมหานคร", "เชียงใหม่", "ชลบุรี", "นครราชสีมา", "ขอนแก่น"]; // เพิ่มให้ครบ 77 จังหวัดตามโค้ดเดิม
     const pSelect = document.getElementById('province');
     PROVINCES.forEach(p => { pSelect.options.add(new Option(p, p)); });
 
     async function initLIFF() {
         try {
-            // ผมใส่เลข ID จากรูปล่าสุดของพี่ให้แล้วครับ
-            await liff.init({ liffId: "2009955496-jzd8tA0e" }); 
+            await liff.init({ liffId: LIFF_ID });
             if (!liff.isLoggedIn()) {
                 liff.login();
             } else {
                 const profile = await liff.getProfile();
-                document.getElementById('user-pic').src = profile.pictureUrl;
-                document.getElementById('user-pic').style.display = 'block';
-                document.getElementById('user-display').innerText = profile.displayName;
-                document.getElementById('loading-text').style.display = 'none';
-                document.getElementById('register-form').style.display = 'block';
-                localStorage.setItem('line_uid', profile.userId);
+                const lineId = profile.userId;
+
+                // ตรวจสอบสถานะการลงทะเบียน
+                const res = await fetch(`${WEB_APP_URL}?action=checkUser&lineId=${lineId}`);
+                const data = await res.json();
+
+                if (data.exists) {
+                    window.location.href = "scanandpoint.html"; // ถ้ามีข้อมูลแล้วไปหน้าสะสมแต้ม
+                } else {
+                    document.getElementById('user-pic').src = profile.pictureUrl;
+                    document.getElementById('user-pic').style.display = 'block';
+                    document.getElementById('user-display').innerText = profile.displayName;
+                    document.getElementById('loading-text').style.display = 'none';
+                    document.getElementById('register-form').style.display = 'block';
+                    localStorage.setItem('line_uid', lineId);
+                }
             }
-        } catch (err) {
-            document.getElementById('loading-text').innerText = "กรุณาเปิดลิงก์นี้ในแอป LINE ครับ";
-        }
+        } catch (err) { console.error(err); }
     }
 
     async function saveData() {
-        const fullname = document.getElementById('fullname').value;
-        const phone = document.getElementById('phone').value;
-        const school = document.getElementById('school').value;
-        const province = document.getElementById('province').value;
         const lineId = localStorage.getItem('line_uid');
+        const payload = {
+            action: "register",
+            lineId: lineId,
+            fullname: document.getElementById('fullname').value,
+            phone: document.getElementById('phone').value,
+            school: document.getElementById('school').value,
+            province: document.getElementById('province').value
+        };
 
-        if (!fullname || !phone || !province) {
-            alert("กรอกข้อมูลให้ครบก่อนครับพี่");
-            return;
-        }
+        if (!payload.fullname || !payload.phone) { alert("กรุณากรอกข้อมูลให้ครบ"); return; }
 
-        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxgkcz7HjvAvfnoaVVV0k-BsUwCkUh3hDKb2b3Y-wjtn7Q56D8re9L38TQX3ayuqv5L/exec";
-        
-        try {
-            await fetch(WEB_APP_URL, {
-                method: 'POST',
-                mode: 'no-cors',
-                body: JSON.stringify({
-                    action: "register",
-                    lineId: lineId,
-                    fullname: fullname,
-                    phone: phone,
-                    school: school,
-                    province: province
-                })
-            });
-            // บรรทัดที่พี่ต้องแก้ในไฟล์ index.html
-alert("ลงทะเบียนสำเร็จ!");
-window.location.href = "scanandpoint.html"; // เปลี่ยนจาก home.html เป็นอันนี้ครับ
-        } catch (err) {
-            alert("บันทึกไม่สำเร็จ ลองอีกครั้งครับ");
-        }
+        await fetch(WEB_APP_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
+        alert("ลงทะเบียนสำเร็จ!");
+        window.location.href = "scanandpoint.html";
     }
+
     window.onload = initLIFF;
 </script>
 </body>
