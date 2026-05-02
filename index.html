@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ลงทะเบียน - CYCLE POINT</title>
     <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;700&display=swap" rel="stylesheet">
-    <!-- 1. เชื่อมต่อระบบ LINE LIFF -->
     <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
     <style>
         body { margin: 0; padding: 0; font-family: 'Kanit', sans-serif; background-color: #285B48; min-height: 100vh; text-align: center; }
@@ -14,14 +13,11 @@
         .profile-img { width: 110px; height: 110px; border-radius: 50%; border: 4px solid #FFD700; object-fit: cover; display: none; margin: 10px auto; }
         .user-name { color: #285B48; font-weight: bold; font-size: 1.2rem; margin-top: 10px; display: none; }
         #loading-text { color: #285B48; font-weight: bold; margin-top: 20px; }
-
         .form-section { padding: 30px 25px; max-width: 450px; margin: auto; display: none; }
         .form-group { margin-bottom: 20px; text-align: left; }
         label { display: block; color: white; margin-bottom: 8px; font-size: 1rem; }
         input, select { width: 100%; padding: 15px; border-radius: 12px; border: none; background: white; font-family: 'Kanit'; box-sizing: border-box; font-size: 1rem; }
-        
         .btn-submit { width: 100%; padding: 18px; border-radius: 50px; background-color: #FFD700; color: #285B48; border: none; font-size: 1.3rem; font-weight: 700; cursor: pointer; margin-top: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
-        .btn-submit:disabled { background-color: #ccc; cursor: not-allowed; }
     </style>
 </head>
 <body>
@@ -36,14 +32,12 @@
 <div class="form-section" id="register-form">
     <div class="form-group">
         <label>กรอกชื่อ-นามสกุลจริง ของท่าน</label>
-        <input type="text" id="fullname" placeholder="ชื่อ-นามสกุล ตามบัตรประชาชน">
+        <input type="text" id="fullname" placeholder="ชื่อ-นามสกุล">
     </div>
-
     <div class="form-group">
         <label>เบอร์โทรศัพท์</label>
         <input type="tel" id="phone" placeholder="08XXXXXXXX">
     </div>
-
     <div class="form-group">
         <label>โรงเรียน/หน่วยงาน</label>
         <select id="school">
@@ -51,52 +45,40 @@
             <option value="อื่นๆ">อื่นๆ</option>
         </select>
     </div>
-
     <div class="form-group">
         <label>จังหวัด</label>
         <select id="province">
             <option value="">เลือกจังหวัด</option>
         </select>
     </div>
-
     <button class="btn-submit" onclick="saveData()">ยืนยันข้อมูลสมาชิก</button>
 </div>
 
 <script>
-    // รายชื่อจังหวัด ก-ฮ
     const PROVINCES = ["กระบี่", "กรุงเทพมหานคร", "กาญจนบุรี", "กาฬสินธุ์", "กำแพงเพชร", "ขอนแก่น", "จันทบุรี", "ฉะเชิงเทรา", "ชลบุรี", "ชัยนาท", "ชัยภูมิ", "ชุมพร", "เชียงราย", "เชียงใหม่", "ตรัง", "ตราด", "ตาก", "นครนายก", "นครปฐม", "นครพนม", "นครราชสีมา", "นครศรีธรรมราช", "นครสวรรค์", "นนทบุรี", "นราธิวาส", "น่าน", "บึงกาฬ", "บุรีรัมย์", "ปทุมธานี", "ประจวบคีรีขันธ์", "ปราจีนบุรี", "ปัตตานี", "พระนครศรีอยุธยา", "พะเยา", "พังงา", "พัทลุง", "พิจิตร", "พิษณุโลก", "เพชรบุรี", "เพชรบูรณ์", "แพร่", "ภูเก็ต", "มหาสารคาม", "มุกดาหาร", "แม่ฮ่องสอน", "ยโสธร", "ยะลา", "ร้อยเอ็ด", "ระนอง", "ระยอง", "ราชบุรี", "ลพบุรี", "ลำปาง", "ลำพูน", "เลย", "ศรีสะเกษ", "สกลนคร", "สงขลา", "สตูล", "สมุทรปราการ", "สมุทรสงคราม", "สมุทรสาคร", "สระแก้ว", "สระบุรี", "สิงห์บุรี", "สุโขทัย", "สุพรรณบุรี", "สุราษฎร์ธานี", "สุรินทร์", "หนองคาย", "หนองบัวลำภู", "อ่างทอง", "อำนาจเจริญ", "อุดรธานี", "อุตรดิตถ์", "อุทัยธานี", "อุบลราชธานี"];
     const pSelect = document.getElementById('province');
     PROVINCES.forEach(p => { pSelect.options.add(new Option(p, p)); });
 
-    // 2. ฟังก์ชันเริ่มต้น LIFF (Login & ดึงโปรไฟล์)
     async function initLIFF() {
         try {
-            // *** พี่ก๊อป LIFF ID จากหน้าจอที่พี่ส่งมาใส่ตรงนี้ครับ ***
-            await liff.init({ liffId: "200445xxxx-xxxxxxx" }); 
-
+            // ผมใส่เลข ID จากรูปล่าสุดของพี่ให้แล้วครับ
+            await liff.init({ liffId: "2009955496-jzd8tA0e" }); 
             if (!liff.isLoggedIn()) {
                 liff.login();
             } else {
                 const profile = await liff.getProfile();
-                
-                // แสดงรูปและชื่อจาก LINE
                 document.getElementById('user-pic').src = profile.pictureUrl;
                 document.getElementById('user-pic').style.display = 'block';
                 document.getElementById('user-display').innerText = profile.displayName;
-                
-                // ซ่อนตัวหนังสือโหลด และโชว์ฟอร์มกรอกข้อมูล
                 document.getElementById('loading-text').style.display = 'none';
                 document.getElementById('register-form').style.display = 'block';
-                
                 localStorage.setItem('line_uid', profile.userId);
             }
         } catch (err) {
             document.getElementById('loading-text').innerText = "กรุณาเปิดลิงก์นี้ในแอป LINE ครับ";
-            console.error(err);
         }
     }
 
-    // 3. ฟังก์ชันบันทึกข้อมูลไป Google Sheets
     async function saveData() {
         const fullname = document.getElementById('fullname').value;
         const phone = document.getElementById('phone').value;
@@ -105,17 +87,12 @@
         const lineId = localStorage.getItem('line_uid');
 
         if (!fullname || !phone || !province) {
-            alert("กรุณากรอกข้อมูลให้ครบถ้วนก่อนครับพี่");
+            alert("กรอกข้อมูลให้ครบก่อนครับพี่");
             return;
         }
 
-        const btn = document.querySelector('.btn-submit');
-        btn.disabled = true;
-        btn.innerText = "กำลังบันทึก...";
-
-        // URL Google Apps Script ของพี่
         const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxgkcz7HjvAvfnoaVVV0k-BsUwCkUh3hDKb2b3Y-wjtn7Q56D8re9L38TQX3ayuqv5L/exec";
-
+        
         try {
             await fetch(WEB_APP_URL, {
                 method: 'POST',
@@ -129,21 +106,13 @@
                     province: province
                 })
             });
-
-            // บันทึกความจำลงเครื่อง
             localStorage.setItem('cycle_user_id', lineId);
-            localStorage.setItem('cycle_user_fullname', fullname);
-
-            alert("ลงทะเบียนสำเร็จแล้วครับ!");
+            alert("ลงทะเบียนสำเร็จ!");
             window.location.href = "home.html"; 
-
         } catch (err) {
-            alert("บันทึกไม่สำเร็จ: " + err.message);
-            btn.disabled = false;
-            btn.innerText = "ยืนยันข้อมูลสมาชิก";
+            alert("บันทึกไม่สำเร็จ ลองอีกครั้งครับ");
         }
     }
-
     window.onload = initLIFF;
 </script>
 </body>
