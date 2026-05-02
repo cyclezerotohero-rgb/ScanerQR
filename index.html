@@ -8,64 +8,120 @@
     <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
     <style>
         body { margin: 0; padding: 0; font-family: 'Kanit', sans-serif; background-color: #285B48; min-height: 100vh; text-align: center; }
-        .header { background-color: white; padding: 30px; border-radius: 0 0 40px 40px; }
+        .header { background-color: white; padding: 30px; border-radius: 0 0 40px 40px; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
         .form-section { padding: 30px 25px; max-width: 450px; margin: auto; display: none; }
         .form-group { margin-bottom: 15px; text-align: left; }
-        label { color: white; display: block; margin-bottom: 5px; }
-        input, select { width: 100%; padding: 12px; border-radius: 10px; border: none; box-sizing: border-box; font-size: 1rem; }
-        .btn { width: 100%; padding: 15px; border-radius: 50px; background-color: #FFD700; color: #285B48; border: none; font-size: 1.2rem; font-weight: bold; cursor: pointer; margin-top: 10px; }
+        label { color: white; display: block; margin-bottom: 5px; font-weight: 300; }
+        input, select { width: 100%; padding: 12px; border-radius: 10px; border: none; box-sizing: border-box; font-size: 1rem; font-family: 'Kanit', sans-serif; }
+        .btn { width: 100%; padding: 15px; border-radius: 50px; background-color: #FFD700; color: #285B48; border: none; font-size: 1.2rem; font-weight: bold; cursor: pointer; margin-top: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        .btn:active { transform: scale(0.98); }
     </style>
 </head>
 <body>
+
     <div class="header">
-        <img src="cyclepoint.png" style="width:150px;">
-        <div id="loading-text" style="margin-top:10px;">กำลังตรวจสอบข้อมูล...</div>
+        <img src="cyclepoint.png" style="width:150px;" alt="Logo">
+        <div id="loading-text" style="margin-top:10px; color: #285B48;">กำลังตรวจสอบข้อมูลสมาชิก...</div>
     </div>
+
     <div class="form-section" id="register-form">
-        <div class="form-group"><label>ชื่อ-นามสกุล</label><input type="text" id="fullname"></div>
-        <div class="form-group"><label>จังหวัด</label><input type="text" id="province" placeholder="ระบุจังหวัด"></div>
-        <div class="form-group"><label>วันเกิด</label><input type="date" id="birthdate"></div>
+        <div class="form-group">
+            <label>ชื่อ-นามสกุล</label>
+            <input type="text" id="fullname" placeholder="ระบุชื่อและนามสกุล">
+        </div>
+
+        <div class="form-group">
+            <label>จังหวัด</label>
+            <select id="province">
+                <option value="" disabled selected>--- เลือกจังหวัด ---</option>
+                <option value="กรุงเทพมหานคร">กรุงเทพมหานคร</option><option value="กระบี่">กระบี่</option><option value="กาญจนบุรี">กาญจนบุรี</option><option value="กาฬสินธุ์">กาฬสินธุ์</option><option value="กำแพงเพชร">กำแพงเพชร</option><option value="ขอนแก่น">ขอนแก่น</option><option value="จันทบุรี">จันทบุรี</option><option value="ฉะเชิงเทรา">ฉะเชิงเทรา</option><option value="ชลบุรี">ชลบุรี</option><option value="ชัยนาท">ชัยนาท</option><option value="ชัยภูมิ">ชัยภูมิ</option><option value="ชุมพร">ชุมพร</option><option value="เชียงราย">เชียงราย</option><option value="เชียงใหม่">เชียงใหม่</option><option value="ตรัง">ตรัง</option><option value="ตราด">ตราด</option><option value="ตาก">ตาก</option><option value="นครนายก">นครนายก</option><option value="นครปฐม">นครปฐม</option><option value="นครพนม">นครพนม</option><option value="นครราชสีมา">นครราชสีมา</option><option value="นครศรีธรรมราช">นครศรีธรรมราช</option><option value="นครสวรรค์">นครสวรรค์</option><option value="นนทบุรี">นนทบุรี</option><option value="นราธิวาส">นราธิวาส</option><option value="น่าน">น่าน</option><option value="บึงกาฬ">บึงกาฬ</option><option value="บุรีรัมย์">บุรีรัมย์</option><option value="ปทุมธานี">ปทุมธานี</option><option value="ประจวบคีรีขันธ์">ประจวบคีรีขันธ์</option><option value="ปราจีนบุรี">ปราจีนบุรี</option><option value="ปัตตานี">ปัตตานี</option><option value="พระนครศรีอยุธยา">พระนครศรีอยุธยา</option><option value="พะเยา">พะเยา</option><option value="พังงา">พังงา</option><option value="พัทลุง">พัทลุง</option><option value="พิจิตร">พิจิตร</option><option value="พิษณุโลก">พิษณุโลก</option><option value="เพชรบุรี">เพชรบุรี</option><option value="เพชรบูรณ์">เพชรบูรณ์</option><option value="แพร่">แพร่</option><option value="ภูเก็ต">ภูเก็ต</option><option value="มหาสารคาม">มหาสารคาม</option><option value="มุกดาหาร">มุกดาหาร</option><option value="แม่ฮ่องสอน">แม่ฮ่องสอน</option><option value="ยโสธร">ยโสธร</option><option value="ยะลา">ยะลา</option><option value="ร้อยเอ็ด">ร้อยเอ็ด</option><option value="ระนอง">ระนอง</option><option value="ระยอง">ระยอง</option><option value="ราชบุรี">ราชบุรี</option><option value="ลพบุรี">ลพบุรี</option><option value="ลำปาง">ลำปาง</option><option value="ลำพูน">ลำพูน</option><option value="เลย">เลย</option><option value="ศรีสะเกษ">ศรีสะเกษ</option><option value="สกลนคร">สกลนคร</option><option value="สงขลา">สงขลา</option><option value="สตูล">สตูล</option><option value="สมุทรปราการ">สมุทรปราการ</option><option value="สมุทรสงคราม">สมุทรสงคราม</option><option value="สมุทรสาคร">สมุทรสาคร</option><option value="สระแก้ว">สระแก้ว</option><option value="สระบุรี">สระบุรี</option><option value="สิงห์บุรี">สิงห์บุรี</option><option value="สุโขทัย">สุโขทัย</option><option value="สุพรรณบุรี">สุพรรณบุรี</option><option value="สุราษฎร์ธานี">สุราษฎร์ธานี</option><option value="สุรินทร์">สุรินทร์</option><option value="หนองคาย">หนองคาย</option><option value="หนองบัวลำภู">หนองบัวลำภู</option><option value="อ่างทอง">อ่างทอง</option><option value="อำนาจเจริญ">อำนาจเจริญ</option><option value="อุดรธานี">อุดรธานี</option><option value="อุตรดิตถ์">อุตรดิตถ์</option><option value="อุทัยธานี">อุทัยธานี</option><option value="อุบลราชธานี">อุบลราชธานี</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>วันเกิด</label>
+            <input type="date" id="birthdate">
+        </div>
+
         <div class="form-group">
             <label>School/Organization</label>
             <select id="school">
-                <option value="Sarasas School">โรงเรียนสารสาสน์วิเทศเชียงใหม่</option>
+                <option value="Sarasas School">โรงเรียนสารสาสน์วิเทศเชียงใหม่l</option>
+                
             </select>
         </div>
+
         <button class="btn" onclick="saveData()">ลงทะเบียน</button>
     </div>
+
 <script>
+    // --- ตั้งค่า LIFF และ Apps Script ---
     const LIFF_ID = "2009955496-jzd8tA0e"; 
-    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbx_SkGj1VTNds8f6YbCHb-3-FuX3YDxlieVcV6TQzHREifsh1mpgJOmfP98p0kX8ZQh/exec";
+    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzDZpMjL28IUupmj8ggXEDVNbTyDmdb6p9D_tl_Ha7t8PM6BdZqK_AxPq8ckJHt8ReM/exec";
 
     async function init() {
         await liff.init({ liffId: LIFF_ID });
-        if (!liff.isLoggedIn()) { liff.login(); }
-        else {
+        if (!liff.isLoggedIn()) {
+            liff.login();
+        } else {
             const profile = await liff.getProfile();
             localStorage.setItem('uid', profile.userId);
-            const res = await fetch(`${WEB_APP_URL}?action=checkUser&lineId=${profile.userId}`);
-            const data = await res.json();
-            if (data.exists) { window.location.href = "scanandpoint.html"; }
-            else {
-                document.getElementById('loading-text').style.display = 'none';
-                document.getElementById('register-form').style.display = 'block';
+            
+            // เช็กสมาชิกเดิม
+            try {
+                const res = await fetch(`${WEB_APP_URL}?action=checkUser&lineId=${profile.userId}`);
+                const data = await res.json();
+                if (data.exists) {
+                    window.location.href = "scanandpoint.html"; 
+                } else {
+                    document.getElementById('loading-text').style.display = 'none';
+                    document.getElementById('register-form').style.display = 'block';
+                }
+            } catch (err) {
+                console.error("CheckUser Error:", err);
+                document.getElementById('loading-text').innerText = "เกิดข้อผิดพลาดในการเชื่อมต่อระบบ";
             }
         }
     }
+
     async function saveData() {
+        const fullname = document.getElementById('fullname').value;
+        const province = document.getElementById('province').value;
+        const birthdate = document.getElementById('birthdate').value;
+        const school = document.getElementById('school').value;
+
+        if (!fullname || !province || !birthdate) {
+            return alert("กรุณากรอกข้อมูลให้ครบถ้วนครับ");
+        }
+
         const payload = {
             action: "register",
             lineId: localStorage.getItem('uid'),
-            fullname: document.getElementById('fullname').value,
-            province: document.getElementById('province').value,
-            birthdate: document.getElementById('birthdate').value,
-            dept: document.getElementById('school').value
+            fullname: fullname,
+            province: province,
+            birthdate: birthdate,
+            dept: school
         };
-        if (!payload.fullname || !payload.province || !payload.birthdate) return alert("กรุณากรอกข้อมูลให้ครบถ้วน");
-        await fetch(WEB_APP_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
-        alert("ลงทะเบียนสำเร็จ!");
-        window.location.href = "scanandpoint.html";
+
+        // แสดงสถานะกำลังบันทึก
+        document.querySelector('.btn').innerText = "กำลังบันทึก...";
+        document.querySelector('.btn').disabled = true;
+
+        try {
+            await fetch(WEB_APP_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                body: JSON.stringify(payload)
+            });
+            alert("ลงทะเบียนสำเร็จ!");
+            window.location.href = "scanandpoint.html";
+        } catch (err) {
+            alert("บันทึกไม่สำเร็จ กรุณาลองใหม่อีกครั้ง");
+            document.querySelector('.btn').innerText = "ลงทะเบียน";
+            document.querySelector('.btn').disabled = false;
+        }
     }
+
     window.onload = init;
 </script>
 </body>
