@@ -3,90 +3,179 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ลงทะเบียน - CYCLE</title>
+    <title>ลงทะเบียน - CYCLE POINT</title>
     <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;700&display=swap" rel="stylesheet">
+    <!-- เชื่อมต่อ LINE LIFF SDK -->
+    <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
     <style>
-        body { margin: 0; padding: 0; font-family: 'Kanit', sans-serif; background-color: #285B48; color: white; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
-        .container { width: 90%; max-width: 400px; padding: 20px; text-align: center; }
-        .logo { width: 120px; margin-bottom: 20px; }
-        h2 { margin-bottom: 20px; font-weight: 700; }
+        body { margin: 0; padding: 0; font-family: 'Kanit', sans-serif; background-color: #285B48; min-height: 100vh; }
         
-        .form-group { text-align: left; margin-bottom: 15px; width: 100%; }
-        label { display: block; margin-bottom: 5px; font-size: 0.9rem; }
-        input, select { width: 100%; padding: 12px; border-radius: 10px; border: none; font-family: 'Kanit'; box-sizing: border-box; color: #333; }
+        /* ส่วนบนสีขาว สไตล์ Singha Rewards */
+        .header-section { 
+            background-color: white; 
+            padding: 40px 20px; 
+            text-align: center; 
+            border-radius: 0 0 40px 40px; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1); 
+        }
+        .logo-main { width: 180px; margin-bottom: 25px; }
+        .profile-container { position: relative; display: inline-block; }
+        .profile-img { 
+            width: 110px; 
+            height: 110px; 
+            border-radius: 50%; 
+            border: 4px solid #FFD700; 
+            object-fit: cover; 
+            margin-top: 10px;
+            background-color: #eee;
+        }
+        .line-name { color: #285B48; font-weight: bold; margin-top: 15px; font-size: 1.2rem; }
+
+        /* ส่วนฟอร์มสีเขียว */
+        .form-section { padding: 40px 25px; max-width: 450px; margin: auto; }
+        .form-group { margin-bottom: 22px; }
+        label { display: block; color: white; margin-bottom: 10px; font-size: 1rem; font-weight: 300; }
         
-        .btn-submit { width: 100%; padding: 15px; border-radius: 15px; background-color: #FFD700; color: #285B48; border: none; font-size: 1.2rem; font-weight: 700; cursor: pointer; margin-top: 10px; box-shadow: 0 4px 0 #c7a800; }
-        .btn-submit:active { transform: translateY(4px); box-shadow: none; }
-        .btn-submit:disabled { background-color: #ccc; box-shadow: none; }
+        input, select { 
+            width: 100%; 
+            padding: 15px; 
+            border-radius: 12px; 
+            border: none; 
+            background: white; 
+            font-family: 'Kanit'; 
+            box-sizing: border-box; 
+            font-size: 1rem; 
+            color: #333; 
+            outline: none;
+        }
+        
+        /* ปุ่มยืนยันสีเหลือง */
+        .btn-submit { 
+            width: 100%; 
+            padding: 18px; 
+            border-radius: 50px; 
+            background-color: #FFD700; 
+            color: #285B48; 
+            border: none; 
+            font-size: 1.3rem; 
+            font-weight: 700; 
+            cursor: pointer; 
+            margin-top: 20px; 
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2); 
+            transition: 0.3s; 
+        }
+        .btn-submit:active { transform: scale(0.96); box-shadow: none; }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <img src="CYCLE.png" alt="Logo" class="logo">
-    <h2>ลงทะเบียนสมาชิก</h2>
+<div class="header-section">
+    <!-- โลโก้บนสุด -->
+    <img src="cyclepoint.png" alt="CYCLE POINT" class="logo-main">
     
-    <div class="form-group">
-        <label>ชื่อ-นามสกุล</label>
-        <input type="text" id="fullname" placeholder="ระบุชื่อและนามสกุล">
+    <!-- รูปโปรไฟล์ดึงจาก LINE -->
+    <div id="profile-area">
+        <div class="profile-container">
+            <img src="https://via.placeholder.com/110?text=LINE" id="user-img" class="profile-img">
+        </div>
+        <div class="line-name" id="user-name">กำลังเชื่อมต่อ LINE...</div>
     </div>
-    
+</div>
+
+<div class="form-section">
     <div class="form-group">
-        <label>ชื่อเล่น</label>
-        <input type="text" id="nickname" placeholder="ระบุชื่อเล่น">
+        <label>กรอกชื่อ-นามสกุลจริง ของท่าน</label>
+        <input type="text" id="fullname" placeholder="ชื่อ และ นามสกุล">
     </div>
-    
+
     <div class="form-group">
-        <label>วันเกิด</label>
-        <input type="date" id="birthdate">
+        <label>เบอร์โทรศัพท์</label>
+        <input type="tel" id="phone" placeholder="08X-XXX-XXXX">
     </div>
-    
+
     <div class="form-group">
         <label>โรงเรียน/หน่วยงาน</label>
-        <select id="dept">
-            <option value="">เลือกหน่วยงาน</option>
-            <option value="โรงเรียนสารสาสน์">โรงเรียนสารสาสน์</option>
-            <option value="อื่นๆ">อื่นๆ</option>
+        <select id="school">
+            <option value="โรงเรียนสารสาสน์วิเทศเชียงใหม่">โรงเรียนสารสาสน์วิเทศเชียงใหม่</option>
         </select>
     </div>
 
-    <button class="btn-submit" id="regBtn" onclick="register()">ลงทะเบียน</button>
+    <div class="form-group">
+        <label>จังหวัด</label>
+        <select id="province">
+            <option value="">เลือกจังหวัด</option>
+            <!-- JavaScript จะใส่รายชื่อ ก-ฮ ให้ตรงนี้ -->
+        </select>
+    </div>
+
+    <button class="btn-submit" onclick="registerData()">ยืนยันข้อมูลสมาชิก</button>
 </div>
 
 <script>
-    // ระบบ Auto-Login
-    window.onload = function() {
-        if (localStorage.getItem('cycle_user_id')) {
-            window.location.href = "scan.html";
+    // รายชื่อจังหวัดเรียง ก-ฮ
+    const PROVINCES = [
+        "กระบี่", "กรุงเทพมหานคร", "กาญจนบุรี", "กาฬสินธุ์", "กำแพงเพชร", "ขอนแก่น", "จันทบุรี", "ฉะเชิงเทรา", "ชลบุรี", "ชัยนาท", "ชัยภูมิ", "ชุมพร", "เชียงราย", "เชียงใหม่", "ตรัง", "ตราด", "ตาก", "นครนายก", "นครปฐม", "นครพนม", "นครราชสีมา", "นครศรีธรรมราช", "นครสวรรค์", "นนทบุรี", "นราธิวาส", "น่าน", "บึงกาฬ", "บุรีรัมย์", "ปทุมธานี", "ประจวบคีรีขันธ์", "ปราจีนบุรี", "ปัตตานี", "พระนครศรีอยุธยา", "พะเยา", "พังงา", "พัทลุง", "พิจิตร", "พิษณุโลก", "เพชรบุรี", "เพชรบูรณ์", "แพร่", "ภูเก็ต", "มหาสารคาม", "มุกดาหาร", "แม่ฮ่องสอน", "ยโสธร", "ยะลา", "ร้อยเอ็ด", "ระนอง", "ระยอง", "ราชบุรี", "ลพบุรี", "ลำปาง", "ลำพูน", "เลย", "ศรีสะเกษ", "สกลนคร", "สงขลา", "สตูล", "สมุทรปราการ", "สมุทรสงคราม", "สมุทรสาคร", "สระแก้ว", "สระบุรี", "สิงห์บุรี", "สุโขทัย", "สุพรรณบุรี", "สุราษฎร์ธานี", "สุรินทร์", "หนองคาย", "หนองบัวลำภู", "อ่างทอง", "อำนาจเจริญ", "อุดรธานี", "อุตรดิตถ์", "อุทัยธานี", "อุบลราชธานี"
+    ];
+
+    // ใส่ข้อมูลจังหวัดลงใน Select
+    const provinceSelect = document.getElementById('province');
+    PROVINCES.forEach(p => {
+        let opt = document.createElement('option');
+        opt.value = p;
+        opt.innerHTML = p;
+        provinceSelect.appendChild(opt);
+    });
+
+    // 1. เริ่มต้นระบบ LINE LIFF
+    async function initLine() {
+        try {
+            // พี่ต้องเอา LIFF ID จาก LINE Developers มาใส่ตรงนี้ครับ
+            await liff.init({ liffId: "https://liff.line.me/2009856940-tyxcN1rB" }); 
+            
+            if (!liff.isLoggedIn()) {
+                liff.login();
+            } else {
+                const profile = await liff.getProfile();
+                document.getElementById('user-img').src = profile.pictureUrl;
+                document.getElementById('user-name').innerText = profile.displayName;
+                
+                // บันทึกข้อมูลพื้นฐานจาก LINE ลงเครื่อง
+                localStorage.setItem('line_uid', profile.userId);
+                localStorage.setItem('line_img', profile.pictureUrl);
+                localStorage.setItem('line_name', profile.displayName);
+            }
+        } catch (err) {
+            console.error("LIFF Error", err);
         }
-    };
+    }
 
-    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxgkcz7HjvAvfnoaVVV0k-BsUwCkUh3hDKb2b3Y-wjtn7Q56D8re9L38TQX3ayuqv5L/exec";
-
-    async function register() {
-        const btn = document.getElementById('regBtn');
+    // 2. ฟังก์ชันส่งข้อมูลลงทะเบียน
+    async function registerData() {
         const fullname = document.getElementById('fullname').value;
-        const nickname = document.getElementById('nickname').value;
-        const birthdate = document.getElementById('birthdate').value;
-        const dept = document.getElementById('dept').value;
-
-        if (!fullname || !nickname || !birthdate || !dept) {
-            alert("กรุณากรอกข้อมูลให้ครบถ้วนครับ");
+        const phone = document.getElementById('phone').value;
+        const school = document.getElementById('school').value;
+        const province = document.getElementById('province').value;
+        const lineId = localStorage.getItem('line_uid');
+        
+        if (!fullname || !phone || !province) {
+            alert("กรุณากรอกข้อมูลให้ครบถ้วนครับพี่");
             return;
         }
 
+        const btn = document.querySelector('.btn-submit');
         btn.disabled = true;
         btn.innerText = "กำลังบันทึก...";
 
-        const myId = "MB" + Date.now().toString().slice(-6);
-
+        // เตรียมส่งข้อมูลไปยัง Google Sheets
+        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxgkcz7HjvAvfnoaVVV0k-BsUwCkUh3hDKb2b3Y-wjtn7Q56D8re9L38TQX3ayuqv5L/exec";
+        
         const data = {
             action: "register",
-            lineId: myId,
+            lineId: lineId,
             fullname: fullname,
-            nickname: nickname,
-            birthdate: birthdate,
-            dept: dept
+            phone: phone,
+            school: school,
+            province: province
         };
 
         try {
@@ -96,22 +185,23 @@
                 body: JSON.stringify(data) 
             });
 
-            // บันทึกข้อมูลลงเครื่อง
-            localStorage.setItem('cycle_user_id', myId);
-            localStorage.setItem('cycle_user_fullname', data.fullname);
-            localStorage.setItem('cycle_user_nickname', data.nickname);
-            localStorage.setItem('cycle_user_birthdate', data.birthdate);
-            localStorage.setItem('cycle_user_dept', data.dept);
+            // บันทึกข้อมูลลงเครื่อง LocalStorage
+            localStorage.setItem('cycle_user_fullname', fullname);
+            localStorage.setItem('cycle_user_phone', phone);
+            localStorage.setItem('cycle_user_school', school);
+            localStorage.setItem('cycle_user_province', province);
 
-            alert('ลงทะเบียนสำเร็จ!');
-            window.location.href = "scan.html"; 
+            alert("ลงทะเบียนสำเร็จครับ!");
+            window.location.href = "home.html"; // วาร์ปไปหน้าสะสมแต้ม
             
         } catch (err) {
-            alert('เกิดข้อผิดพลาด: ' + err.message);
+            alert("เกิดข้อผิดพลาด: " + err.message);
             btn.disabled = false;
-            btn.innerText = "ลงทะเบียน";
+            btn.innerText = "ยืนยันข้อมูลสมาชิก";
         }
     }
+
+    window.onload = initLine;
 </script>
 
 </body>
