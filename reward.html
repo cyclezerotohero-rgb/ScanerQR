@@ -150,9 +150,16 @@
                 })
             });
 
-            alert("แลกของรางวัลสำเร็จ! แต้มของคุณถูกหัก 100 P");
-            location.reload(); 
-        } catch (err) {
+            }); // ปิด fetch
+
+    alert("แลกของรางวัลสำเร็จ! แต้มของคุณถูกหัก 100 P");
+
+    // เพิ่มการหน่วงเวลา 2 วินาทีตรงนี้ครับ
+    setTimeout(function() {
+        location.reload(); 
+    }, 2000);
+
+} catch (err) {
             alert("เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง");
             btn.innerText = "ยืนยันการแลกรางวัล";
             btn.disabled = false;
