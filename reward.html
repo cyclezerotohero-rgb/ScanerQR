@@ -7,39 +7,27 @@
     <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;700&display=swap" rel="stylesheet">
     <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
     <style>
-        /* สไตล์หน้าเว็ปสีขาวตามโจทย์ */
         body { margin: 0; font-family: 'Kanit', sans-serif; background-color: white; color: #333; overflow-x: hidden; }
-        
-        /* ส่วนหัวโชว์แต้ม */
         .header { background-color: #285B48; color: white; padding: 25px 20px; text-align: center; border-radius: 0 0 30px 30px; position: sticky; top: 0; z-index: 100; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
         .point-label { font-size: 0.9rem; font-weight: 300; opacity: 0.9; margin-bottom: 5px; }
         .point-display { font-size: 2rem; font-weight: bold; color: #FFD700; }
-
         .container { padding: 25px 20px; }
-
-        /* การจัดวาง Card รางวัล */
         .reward-card { border: 1px solid #f0f0f0; border-radius: 25px; overflow: hidden; box-shadow: 0 10px 20px rgba(0,0,0,0.05); margin-bottom: 30px; background: white; }
         .reward-img { width: 100%; display: block; object-fit: cover; }
         .reward-info { padding: 20px; text-align: left; }
         .reward-name { font-size: 1.3rem; font-weight: bold; color: #285B48; margin-bottom: 8px; }
-        
-        /* ส่วนแสดงราคาพอยต์ */
         .price-tag { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
         .points-required { background: #fdf2d2; color: #b28a00; padding: 5px 15px; border-radius: 50px; font-weight: bold; font-size: 1rem; }
-        
         .btn-use-point { background-color: #285B48; color: white; width: 100%; border: none; padding: 16px; border-radius: 50px; font-size: 1.1rem; font-weight: bold; cursor: pointer; transition: 0.3s; box-shadow: 0 5px 15px rgba(40,91,72,0.3); }
         .btn-use-point:active { transform: scale(0.98); opacity: 0.9; }
-
-        /* Popup Bottom Sheet */
         .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); display: none; z-index: 999; backdrop-filter: blur(3px); }
         #bottom-sheet { position: fixed; bottom: -100%; left: 0; width: 100%; background: white; box-shadow: 0 -10px 30px rgba(0,0,0,0.2); border-radius: 30px 30px 0 0; transition: 0.5s cubic-bezier(0.25, 1, 0.5, 1); z-index: 1000; padding: 30px 25px 40px 25px; box-sizing: border-box; }
         #bottom-sheet.active { bottom: 0; }
-        
         .sheet-title { font-size: 1.4rem; font-weight: bold; margin-bottom: 20px; color: #285B48; text-align: center; }
         input, textarea { width: 100%; padding: 14px; margin-bottom: 15px; border-radius: 12px; border: 1px solid #ddd; font-family: 'Kanit'; font-size: 1rem; box-sizing: border-box; outline: none; transition: 0.3s; }
         input:focus, textarea:focus { border-color: #285B48; background-color: #f9f9f9; }
-        
         .btn-confirm { background-color: #FFD700; color: #285B48; width: 100%; border: none; padding: 16px; border-radius: 50px; font-size: 1.2rem; font-weight: bold; cursor: pointer; margin-top: 10px; }
+        .btn-confirm:disabled { background-color: #ccc; cursor: not-allowed; }
     </style>
 </head>
 <body>
@@ -50,7 +38,6 @@
     </div>
 
     <div class="container">
-        <!-- บัตรของรางวัล Reward01.png -->
         <div class="reward-card">
             <img src="Reward01.png" class="reward-img" alt="Reward Image">
             <div class="reward-info">
@@ -63,7 +50,6 @@
         </div>
     </div>
 
-    <!-- ส่วน Popup สไลด์จากด้านล่าง -->
     <div class="overlay" id="overlay" onclick="closeRedeem()"></div>
     <div id="bottom-sheet">
         <div class="sheet-title">ที่อยู่จัดส่งรางวัล</div>
@@ -75,22 +61,25 @@
     </div>
 
 <script>
-    // URL ของ Web App จาก Google Apps Script ของพี่
     const WEB_APP_URL = "https://script.google.com/macros/s/AKfycby2LZ1pzToqwY-cWxCGei1zFSiJ__BtfkXW1DLJsE_9N24I1ySBJ1K3rfrf1Dn3_Jm_/exec";
     const LIFF_ID = "2009955496-jzd8tA0e";
-    const REWARD_COST = 100; // ค่าพอยต์ที่ใช้แลก
+    const REWARD_COST = 100;
     
     let userLineId = "";
     let currentPoints = 0;
 
     async function init() {
-        await liff.init({ liffId: LIFF_ID });
-        if (liff.isLoggedIn()) {
-            const profile = await liff.getProfile();
-            userLineId = profile.userId;
-            fetchUserPoints();
-        } else {
-            liff.login();
+        try {
+            await liff.init({ liffId: LIFF_ID });
+            if (liff.isLoggedIn()) {
+                const profile = await liff.getProfile();
+                userLineId = profile.userId;
+                fetchUserPoints();
+            } else {
+                liff.login();
+            }
+        } catch (e) {
+            console.error("Liff Init Error", e);
         }
     }
 
@@ -98,7 +87,7 @@
         try {
             const res = await fetch(`${WEB_APP_URL}?action=checkUser&lineId=${userLineId}`);
             const data = await res.json();
-            currentPoints = data.points;
+            currentPoints = data.points || 0;
             document.getElementById('user-pts').innerText = currentPoints;
         } catch (e) {
             console.error("Error fetching points:", e);
@@ -124,18 +113,17 @@
         const addr = document.getElementById('ship-address').value;
         const post = document.getElementById('ship-post').value;
         const phone = document.getElementById('ship-phone').value;
+        const btn = document.getElementById('confirm-btn');
 
         if (!name || !addr || !post || !phone) {
             alert("กรุณากรอกข้อมูลจัดส่งให้ครบถ้วนครับ");
             return;
         }
 
-        const btn = document.getElementById('confirm-btn');
         btn.innerText = "กำลังประมวลผล...";
         btn.disabled = true;
 
         try {
-            // ส่งข้อมูลไปที่หน้า Reward และทำการตัดแต้ม
             await fetch(WEB_APP_URL, {
                 method: 'POST',
                 mode: 'no-cors',
@@ -150,16 +138,14 @@
                 })
             });
 
-            }); // ปิด fetch
+            alert("แลกของรางวัลสำเร็จ! แต้มของคุณถูกหัก 100 P");
+            
+            setTimeout(function() {
+                location.reload(); 
+            }, 2000);
 
-    alert("แลกของรางวัลสำเร็จ! แต้มของคุณถูกหัก 100 P");
-
-    // เพิ่มการหน่วงเวลา 2 วินาทีตรงนี้ครับ
-    setTimeout(function() {
-        location.reload(); 
-    }, 2000);
-
-} catch (err) {
+        } catch (err) {
+            console.error("Redeem Error:", err);
             alert("เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง");
             btn.innerText = "ยืนยันการแลกรางวัล";
             btn.disabled = false;
