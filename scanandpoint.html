@@ -64,7 +64,6 @@
     }
 
     function startScan(id) {
-        // ตรวจสอบว่าเปิดในแอป LINE หรือไม่
         if (liff.isInClient() && liff.isApiAvailable('scanCodeV2')) {
             liff.scanCodeV2().then(result => {
                 if (result.value) {
@@ -75,7 +74,6 @@
                 alert("การสแกนถูกยกเลิก หรือไม่ได้เปิดสิทธิ์ Scan QR");
             });
         } else {
-            // เปิดกล้องผ่านเว็บปกติ (HTML5 QR Code)
             const readerDiv = document.getElementById('reader');
             readerDiv.style.display = 'block';
             if (!html5QrCode) html5QrCode = new Html5Qrcode("reader");
@@ -92,10 +90,29 @@
             ).catch(err => alert("เปิดกล้องไม่ได้: " + err));
         }
     }
-async function submit() {
-        // ... โค้ดส่วนดึงข้อมูล profile และ codes ของพี่ ...
-        
+
+    async function submit() {
+        const btn = document.getElementById('submit-btn');
+        btn.innerText = "กำลังบันทึก...";
+        btn.disabled = true;
+
         try {
+            const profile = await liff.getProfile();
+            const codes = [
+                document.getElementById('c1').value,
+                document.getElementById('c2').value,
+                document.getElementById('c3').value,
+                document.getElementById('c4').value,
+                document.getElementById('c5').value
+            ].filter(v => v.trim() !== "");
+
+            if (codes.length === 0) {
+                alert("กรุณาสแกนรหัสอย่างน้อย 1 รายการ");
+                btn.innerText = "ยืนยันรับแต้ม";
+                btn.disabled = false;
+                return;
+            }
+
             await fetch(WEB_APP_URL, {
                 method: 'POST',
                 mode: 'no-cors',
@@ -113,20 +130,16 @@ async function submit() {
             }, 2000);
 
         } catch (err) {
-            // --- ต้องเพิ่มส่วนนี้เข้าไปครับ ---
             console.error(err);
             alert("เกิดข้อผิดพลาดในการเชื่อมต่อ กรุณาลองใหม่");
-            // คืนค่าปุ่มให้กดใหม่ได้ถ้าพัง
-            const btn = document.getElementById('submit-btn');
-            if(btn) {
-                btn.innerText = "ยืนยันรับแต้ม";
-                btn.disabled = false;
-            }
+            btn.innerText = "ยืนยันรับแต้ม";
+            btn.disabled = false;
         }
     }
+
     function goToRedeem() {
         window.location.href = "reward.html";
-    } // ปิดฟังก์ชัน goToRedeem
+    }
 
     window.onload = init;
 </script>
