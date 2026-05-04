@@ -93,7 +93,8 @@
         }
     }
 async function submit() {
-        // ... โค้ดส่วนใน submit ของพี่ ...
+        // ... โค้ดส่วนดึงข้อมูล profile และ codes ของพี่ ...
+        
         try {
             await fetch(WEB_APP_URL, {
                 method: 'POST',
@@ -106,19 +107,23 @@ async function submit() {
             });
 
             alert("สะสมแต้มสำเร็จ! กรุณารอสักครู่...");
-            
+
             setTimeout(function() {
                 location.reload();
             }, 2000);
 
         } catch (err) {
-            alert("เกิดข้อผิดพลาดในการส่งข้อมูล");
+            // --- ต้องเพิ่มส่วนนี้เข้าไปครับ ---
+            console.error(err);
+            alert("เกิดข้อผิดพลาดในการเชื่อมต่อ กรุณาลองใหม่");
+            // คืนค่าปุ่มให้กดใหม่ได้ถ้าพัง
             const btn = document.getElementById('submit-btn');
-            btn.innerText = "ยืนยันรับแต้ม";
-            btn.disabled = false;
+            if(btn) {
+                btn.innerText = "ยืนยันรับแต้ม";
+                btn.disabled = false;
+            }
         }
-    } // ปิดฟังก์ชัน submit
-
+    }
     function goToRedeem() {
         window.location.href = "reward.html";
     } // ปิดฟังก์ชัน goToRedeem
