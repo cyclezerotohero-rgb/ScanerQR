@@ -15,6 +15,7 @@
         input, select { width: 100%; padding: 12px; border-radius: 10px; border: none; box-sizing: border-box; font-size: 1rem; font-family: 'Kanit', sans-serif; }
         .btn { width: 100%; padding: 15px; border-radius: 50px; background-color: #FFD700; color: #285B48; border: none; font-size: 1.2rem; font-weight: bold; cursor: pointer; margin-top: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
         .btn:active { transform: scale(0.98); }
+        .btn:disabled { background-color: #ccc; cursor: not-allowed; }
     </style>
 </head>
 <body>
@@ -47,40 +48,38 @@
             <label>School/Organization</label>
             <select id="school">
                 <option value="Sarasas School">โรงเรียนสารสาสน์วิเทศเชียงใหม่</option>
-                
             </select>
         </div>
 
-        <button class="btn" onclick="saveData()">ลงทะเบียน</button>
+        <button class="btn" id="reg-btn" onclick="saveData()">ลงทะเบียน</button>
     </div>
 
 <script>
-    // --- ตั้งค่า LIFF และ Apps Script ---
     const LIFF_ID = "2009955496-jzd8tA0e"; 
     const WEB_APP_URL = "https://script.google.com/macros/s/AKfycby2LZ1pzToqwY-cWxCGei1zFSiJ__BtfkXW1DLJsE_9N24I1ySBJ1K3rfrf1Dn3_Jm_/exec";
 
     async function init() {
-        await liff.init({ liffId: LIFF_ID });
-        if (!liff.isLoggedIn()) {
-            liff.login();
-        } else {
-            const profile = await liff.getProfile();
-            localStorage.setItem('uid', profile.userId);
-            
-            // เช็กสมาชิกเดิม
-            try {
+        try {
+            await liff.init({ liffId: LIFF_ID });
+            if (!liff.isLoggedIn()) {
+                liff.login();
+            } else {
+                const profile = await liff.getProfile();
+                localStorage.setItem('uid', profile.userId);
+                
                 const res = await fetch(`${WEB_APP_URL}?action=checkUser&lineId=${profile.userId}`);
                 const data = await res.json();
+                
                 if (data.exists) {
                     window.location.href = "scanandpoint.html"; 
                 } else {
                     document.getElementById('loading-text').style.display = 'none';
                     document.getElementById('register-form').style.display = 'block';
                 }
-            } catch (err) {
-                console.error("CheckUser Error:", err);
-                document.getElementById('loading-text').innerText = "เกิดข้อผิดพลาดในการเชื่อมต่อระบบ";
             }
+        } catch (err) {
+            console.error("Init Error:", err);
+            document.getElementById('loading-text').innerText = "เกิดข้อผิดพลาดในการโหลดข้อมูล";
         }
     }
 
@@ -89,10 +88,14 @@
         const province = document.getElementById('province').value;
         const birthdate = document.getElementById('birthdate').value;
         const school = document.getElementById('school').value;
+        const btn = document.getElementById('reg-btn');
 
         if (!fullname || !province || !birthdate) {
             return alert("กรุณากรอกข้อมูลให้ครบถ้วนครับ");
         }
+
+        btn.innerText = "กำลังบันทึก...";
+        btn.disabled = true;
 
         const payload = {
             action: "register",
@@ -103,28 +106,23 @@
             dept: school
         };
 
-        // แสดงสถานะกำลังบันทึก
-        document.querySelector('.btn').innerText = "กำลังบันทึก...";
-        document.querySelector('.btn').disabled = true;
-
         try {
             await fetch(WEB_APP_URL, {
                 method: 'POST',
                 mode: 'no-cors',
                 body: JSON.stringify(payload)
             });
-            alert("ลงทะเบียนสำเร็จ!");
-           }); // ปิด fetch
-    alert("ลงทะเบียนสำเร็จ! กรุณารอสักครู่...");
-    setTimeout(function() {
-        window.location.href = "scanandpoint.html";
-    }, 2000); 
 
-} catch (err) {
+            alert("ลงทะเบียนสำเร็จ! กรุณารอสักครู่...");
+            setTimeout(function() {
+                window.location.href = "scanandpoint.html";
+            }, 2000); 
+
         } catch (err) {
+            console.error("Save Error:", err);
             alert("บันทึกไม่สำเร็จ กรุณาลองใหม่อีกครั้ง");
-            document.querySelector('.btn').innerText = "ลงทะเบียน";
-            document.querySelector('.btn').disabled = false;
+            btn.innerText = "ลงทะเบียน";
+            btn.disabled = false;
         }
     }
 
