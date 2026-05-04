@@ -15,10 +15,8 @@
         .scan-card { background-color: #FFD700; padding: 20px; border-radius: 25px; width: 90%; max-width: 500px; margin: 0 auto; box-sizing: border-box; }
         .input-group { position: relative; margin-bottom: 12px; }
         input { width: 100%; padding: 12px; border-radius: 12px; border: 2px solid #285B48; box-sizing: border-box; font-size: 1rem; }
-        .cam-btn { position: absolute; right: 8px; top: 6px; background: #285B48; color: white; padding: 6px 10px; border-radius: 8px; cursor: pointer; }
-        #reader { width: 100%; border-radius: 15px; overflow: hidden; display: none; margin-bottom: 15px; border: 3px solid #285B48; }
-        
-        /* จัดวางปุ่มให้ขนานกัน */
+        .cam-btn { position: absolute; right: 8px; top: 6px; background: #285B48; color: white; padding: 6px 10px; border-radius: 8px; cursor: pointer; z-index: 10; }
+        #reader { width: 100%; border-radius: 15px; overflow: hidden; display: none; margin-bottom: 15px; border: 3px solid #285B48; background: black; }
         .button-group { display: flex; gap: 10px; margin-top: 10px; }
         .btn-confirm { flex: 1; padding: 15px; border-radius: 50px; background-color: #285B48; color: white; border: none; font-size: 1.1rem; font-weight: bold; cursor: pointer; }
         .btn-redeem { flex: 1; padding: 15px; border-radius: 50px; background-color: white; color: #285B48; border: 2px solid #285B48; font-size: 1.1rem; font-weight: bold; cursor: pointer; }
@@ -40,7 +38,7 @@
         <div class="input-group"><input type="text" id="c5" placeholder="รหัสที่ 5"><span class="cam-btn" onclick="startScan(5)">📷</span></div>
         
         <div class="button-group">
-            <button class="btn-confirm" onclick="submit()">ยืนยันรับแต้ม</button>
+            <button class="btn-confirm" id="submit-btn" onclick="submit()">ยืนยันรับแต้ม</button>
             <button class="btn-redeem" onclick="goToRedeem()">🎁 แลกพอยต์</button>
         </div>
     </div>
@@ -58,29 +56,38 @@
     }
 
     async function fetchData(uid) {
-        const res = await fetch(`${WEB_APP_URL}?action=checkUser&lineId=${uid}`);
-        const data = await res.json();
-        document.getElementById('pts').innerText = data.points;
+        try {
+            const res = await fetch(`${WEB_APP_URL}?action=checkUser&lineId=${uid}`);
+            const data = await res.json();
+            document.getElementById('pts').innerText = data.points || 0;
+        } catch (e) { console.error("Fetch error:", e); }
     }
 
     function startScan(id) {
-        if (liff.isInClient() && liff.getOS() !== "web") {
+        // ตรวจสอบว่าเปิดในแอป LINE หรือไม่
+        if (liff.isInClient() && liff.isApiAvailable('scanCodeV2')) {
             liff.scanCodeV2().then(result => {
-                document.getElementById('c' + id).value = result.value;
-            }).catch(err => console.error(err));
-        } 
-        else {
+                if (result.value) {
+                    document.getElementById('c' + id).value = result.value;
+                }
+            }).catch(err => {
+                console.error(err);
+                alert("การสแกนถูกยกเลิก หรือไม่ได้เปิดสิทธิ์ Scan QR");
+            });
+        } else {
+            // เปิดกล้องผ่านเว็บปกติ (HTML5 QR Code)
             const readerDiv = document.getElementById('reader');
             readerDiv.style.display = 'block';
             if (!html5QrCode) html5QrCode = new Html5Qrcode("reader");
 
             html5QrCode.start(
                 { facingMode: "environment" },
-                { fps: 10, qrbox: 250 },
+                { fps: 10, qrbox: { width: 250, height: 150 } },
                 txt => {
                     document.getElementById('c' + id).value = txt;
-                    html5QrCode.stop();
-                    readerDiv.style.display = 'none';
+                    html5QrCode.stop().then(() => {
+                        readerDiv.style.display = 'none';
+                    });
                 }
             ).catch(err => alert("เปิดกล้องไม่ได้: " + err));
         }
@@ -94,32 +101,41 @@
             document.getElementById('c3').value,
             document.getElementById('c4').value,
             document.getElementById('c5').value
-        ].filter(v => v !== "");
+        ].filter(v => v.trim() !== "");
 
         if (codes.length === 0) return alert("กรุณาสแกนรหัสอย่างน้อย 1 รายการ");
 
-        const btn = document.querySelector('.btn-confirm');
+        const btn = document.getElementById('submit-btn');
         btn.innerText = "กำลังบันทึก...";
         btn.disabled = true;
 
-        await fetch(WEB_APP_URL, {
-            method: 'POST',
-            mode: 'no-cors',
-            body: JSON.stringify({
-                action: "addPoints",
-                lineId: profile.userId,
-                codes: codes
-            })
-        });
+        try {
+            await fetch(WEB_APP_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                body: JSON.stringify({
+                    action: "addPoints",
+                    lineId: profile.userId,
+                    codes: codes
+                })
+            });
 
-        alert("สะสมแต้มสำเร็จ!");
-        location.reload();
+            alert("สะสมแต้มสำเร็จ! กรุณารอสักครู่...");
+            
+            // --- หน่วงเวลา 2 วินาทีตามต้องการครับ ---
+            setTimeout(function() {
+                location.reload();
+            }, 2000);
+
+        } catch (err) {
+            alert("เกิดข้อผิดพลาดในการส่งข้อมูล");
+            btn.innerText = "ยืนยันรับแต้ม";
+            btn.disabled = false;
+        }
     }
 
     function goToRedeem() {
-    // แก้ไขลิงก์ให้ชี้ไปที่ไฟล์ reward.html ที่เราเพิ่งอัปโหลดขึ้น GitHub ครับ
-    window.location.href = "reward.html";
-}
+        window.location.href = "reward.html";
     }
 
     window.onload = init;
