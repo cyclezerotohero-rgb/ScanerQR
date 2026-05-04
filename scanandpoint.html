@@ -92,23 +92,8 @@
             ).catch(err => alert("เปิดกล้องไม่ได้: " + err));
         }
     }
-
-    async function submit() {
-        const profile = await liff.getProfile();
-        const codes = [
-            document.getElementById('c1').value,
-            document.getElementById('c2').value,
-            document.getElementById('c3').value,
-            document.getElementById('c4').value,
-            document.getElementById('c5').value
-        ].filter(v => v.trim() !== "");
-
-        if (codes.length === 0) return alert("กรุณาสแกนรหัสอย่างน้อย 1 รายการ");
-
-        const btn = document.getElementById('submit-btn');
-        btn.innerText = "กำลังบันทึก...";
-        btn.disabled = true;
-
+async function submit() {
+        // ... โค้ดส่วนใน submit ของพี่ ...
         try {
             await fetch(WEB_APP_URL, {
                 method: 'POST',
@@ -122,21 +107,21 @@
 
             alert("สะสมแต้มสำเร็จ! กรุณารอสักครู่...");
             
-            // --- หน่วงเวลา 2 วินาทีตามต้องการครับ ---
             setTimeout(function() {
                 location.reload();
             }, 2000);
 
         } catch (err) {
             alert("เกิดข้อผิดพลาดในการส่งข้อมูล");
+            const btn = document.getElementById('submit-btn');
             btn.innerText = "ยืนยันรับแต้ม";
             btn.disabled = false;
         }
-    }
+    } // ปิดฟังก์ชัน submit
 
     function goToRedeem() {
         window.location.href = "reward.html";
-    }
+    } // ปิดฟังก์ชัน goToRedeem
 
     window.onload = init;
 </script>
